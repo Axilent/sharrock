@@ -1,0 +1,10 @@
+<html>
+	<head><title>Directory</title></head>
+	<body>
+	{% for descriptor in descriptors %}
+	<div class="descriptor">
+		{% include 'descriptor_body.html' %}
+	</div>
+	{% endfor %}
+	</body>
+</html>

@@ -1,0 +1,25 @@
+<h1>{{ descriptor.name }}</h1>
+<div class="version">{{ descriptor.version }}</div>
+{% if descriptor.params %}
+<table class="params">
+	<tr>
+		<th>Param</th>
+		<th>Type</th>
+		<th>Required</th>
+		<th>Default</th>
+		<th>Description</th>
+	</tr>
+	{% for param in descriptor.params %}
+	<tr>
+		<td>{{ param.name }}</td>
+		<td>{{ param.type }}</td>
+		<td>{{ param.required|yesno:"Required,Not Required"}}</td>
+		<td>{{ param.default }}</td>
+		<td>{{ param.description }}</td>
+	</tr>
+	{% endfor %}
+</table
+{% endif %}
+<div class="docs">
+	{{ descriptor.docs|safe }}
+</div>

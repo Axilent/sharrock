@@ -4,7 +4,6 @@ Main function registry for Sharrock.
 from django.conf import settings
 from django.template.defaultfilters import slugify
 import inspect
-from saaspire.sharrock.descriptors import Descriptor
 
 descriptor_registry = {}
 
@@ -23,16 +22,26 @@ def build_registry():
 	Builds the function descriptor registry.
 	"""
 	for app_path in settings.INSTALLED_APPS:
-		module = get_module(app_path)
-		if hasattr(module,'descriptors'):
-			descriptor_module = getattr(module,'descriptors')
-			load_descriptors(descriptor_module)
+		print 'Sharrock examinging app',app_path
+		if app_path != 'saaspire.sharrock': # don't load yourself
+			try:
+				module = get_module('%s.descriptors' % app_path)
+				print 'app',app_path,'has descriptors to register...'
+				load_descriptors(module)
+			except AttributeError:
+				print app_path,'has no descriptors module'
 
 def load_descriptors(descriptor_module):
 	"""
 	Loads descriptors in the module into the directory.
 	"""
-	for cls in inspect.getmembers(descriptor_module):
-		if inspect.isclass(cls) and issubclass(cls,Descriptor):
-			descriptor_registry[slugify(cls.__name__)] = cls() # put instance of the descriptor into the registry
+	from saaspire.sharrock.descriptors import Descriptor
+
+	for name,attribute in inspect.getmembers(descriptor_module):
+		print 'examinging attribute',name
+		if inspect.isclass(attribute) and issubclass(attribute,Descriptor) and not attribute is Descriptor:
+			print 'registering descriptor',name
+			descriptor_registry[slugify(name)] = attribute() # put instance of the descriptor into the registry
+	
+	print 'Sharrock registered descriptors:',descriptor_registry.keys()
 

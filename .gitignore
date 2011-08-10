@@ -1,1 +1,6 @@
 *.sublime-project
+env
+*.pyc
+settings.py
+data.db
+

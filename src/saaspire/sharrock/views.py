@@ -9,7 +9,10 @@ def directory(request,extension='html'):
 	"""
 	Gets a complete directory of the function descriptors.
 	"""
-	descriptors = [descriptor.to_dict() for descriptor in registry.descriptor_registry.values()]
+	if not extension in ['html','xml','json']:
+		raise Http404
+
+	descriptors = [descriptor for descriptor in registry.descriptor_registry.values()]
 	return render_to_response('sharrock/directory.%s' % extension,{'descriptors':descriptors})
 
 
@@ -17,6 +20,9 @@ def describe_service(request,service_name,extension='html'):
 	"""
 	Gets a function descriptor.
 	"""
+	if not extension in ['html','xml','json']:
+		raise Http404
+
 	try:
 		return render_to_response('sharrock/descriptor.%s' % extension,
 								  {'descriptor':registry.descriptor_registry[service_name]})

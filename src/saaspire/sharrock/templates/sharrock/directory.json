@@ -1,1 +1,1 @@
-[{% for descriptor in descriptors %}{% include 'descriptor.json' %}{% if not forloop.last %},{% endif %}{% endfor %}]
+[{% for descriptor in descriptors %}{% include 'sharrock/descriptor.json' %}{% if not forloop.last %},{% endif %}{% endfor %}]

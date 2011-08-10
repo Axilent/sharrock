@@ -1,5 +1,5 @@
 <h1>{{ descriptor.name }}</h1>
-<div class="version">{{ descriptor.version }}</div>
+<div class="version">Version: {{ descriptor.version }}</div>
 {% if descriptor.params %}
 <table class="params">
 	<tr>
@@ -18,7 +18,7 @@
 		<td>{{ param.description }}</td>
 	</tr>
 	{% endfor %}
-</table
+</table>
 {% endif %}
 <div class="docs">
 	{{ descriptor.docs|safe }}

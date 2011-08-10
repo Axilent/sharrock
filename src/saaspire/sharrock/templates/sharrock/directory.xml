@@ -1,5 +1,5 @@
 <directory>
 	{% for descriptor in descriptors %}
-	{% include 'descriptor.xml' %}
+	{% include 'sharrock/descriptor.xml' %}
 	{% endfor %}
 </directory>

@@ -10,102 +10,6 @@ class MalformedDescriptor(Exception):
 	"""
 	pass
 
-class DescriptorMetaclass(type):
-	"""
-	Metaclass for descriptors.
-	"""
-	def __new__(cls,name,bases,attrs):
-		"""
-		Constructs a new descriptor class.
-		"""
-		# New attribute dictionary
-		new_attrs = {'serializer_dict':{},'params':{}}
-
-		# Params - make accessor methods
-		def make_accessor_method(name,param_instance):
-			def _accessor(self,param_name,raw):
-				return param_instance.get(param_name,raw)
-			
-			return _accessor
-
-		for attribute_name, attribute_value in attrs.items():
-			if isinstance(Param,attribute_value):
-				accessor = make_accessor_method(attribute_value)
-				new_attrs['get_%s' % attribute_name] = accessor
-				new_attrs['params'][attribute_name] = attribute_value
-			elif isinstance(Serializer,attribute_value):
-				new_attrs['serializer_dict'][attribute_value.name] = attribute_value
-		
-		# If no serializers has been set, set default
-		if not new_attrs['serializer_dict']:
-			new_attrs['serializer_dict']['json'] = JSONSerializer()
-		
-
-		# If no security has been set, set default
-		if not 'security' in attrs:
-			new_attrs['security'] = SecurityCheck()
-		
-		# Insist on version
-		if not 'version' in attrs:
-			raise MalformedDescriptor
-		
-		attrs.update(new_attrs)
-		
-		return type.__new__(cls,name,bases,attrs)
-
-class Descriptor(object):
-	"""
-	Base class for function descriptors.
-
-	Specific descriptor classes should subclass this base class.  They can then
-	define the following
-	"""
-	# Based on metaclass activity - add:
-	# serializer/deserializers
-	# params, required and optional, default values
-	# security hooks
-	# API version
-
-	__metaclass__ = DescriptorMetaclass # class factory mounts here
-
-	def serialize(self,python_object,format):
-		"""
-		Serializes the object.
-		"""
-		try:
-			serializer = self.serializer_dict[format]
-			return serializer.serialize(python_object)
-		except KeyError:
-			raise UnsupportedSerializationFormat
-	
-	def deserialize(self,serialized_object,format):
-		"""
-		Deserializes the object.
-		"""
-		try:
-			serializer = self.serializer_dict[format]
-			return serializer.deserialize(serialized_object)
-		except KeyError:
-			raise UnsupportedSerializationFormat
-
-	def execute(self,request,**kwargs):
-		"""
-		Executes the function.
-		"""
-		# TODO
-	
-	@property
-	def name(self):
-		return self.__class__.__name__
-	
-	@property
-	def docs(self):
-		return markdown.markdown(self.__doc__)
-	
-	@property
-	def docs_plain(self):
-		return self.__doc__ 
-
 class ParamRequired(Exception):
 	"""
 	An exception indicating that a required param has not been supplied.
@@ -286,3 +190,112 @@ class SecurityCheck(object):
 		Raises an AccessDenied exception if the request fails the permission check.
 		"""
 		pass # anyone allowed in base class.
+
+###################
+### Descriptors ###
+###################
+
+class DescriptorMetaclass(type):
+	"""
+	Metaclass for descriptors.
+	"""
+	def __new__(cls,name,bases,attrs):
+		"""
+		Constructs a new descriptor class.
+		"""
+		if name != 'Descriptor': # don't operate on the base class
+			# New attribute dictionary
+			new_attrs = {'serializer_dict':{},'params':[]}
+
+			# Params - make accessor methods
+			def make_accessor_method(name,param_instance):
+				def _accessor(self,param_name,raw):
+					return param_instance.get(param_name,raw)
+				
+				return _accessor
+
+			for attribute_name, attribute_value in attrs.items():
+				if isinstance(attribute_value,Param):
+					accessor = make_accessor_method(attribute_name,attribute_value)
+					new_attrs['get_%s' % attribute_name] = accessor
+					new_attrs['params'].append(attribute_value)
+				elif isinstance(attribute_value,Serializer):
+					new_attrs['serializer_dict'][attribute_value.name] = attribute_value
+			
+			# If no serializers has been set, set default
+			if not new_attrs['serializer_dict']:
+				new_attrs['serializer_dict']['json'] = JSONSerializer()
+			
+
+			# If no security has been set, set default
+			if not 'security' in attrs:
+				new_attrs['security'] = SecurityCheck()
+			
+			# Insist on version
+			if not 'version' in attrs:
+				raise MalformedDescriptor
+			
+			attrs.update(new_attrs)
+		
+		return type.__new__(cls,name,bases,attrs)
+
+class Descriptor(object):
+	"""
+	Base class for function descriptors.
+
+	Specific descriptor classes should subclass this base class.  They can then
+	define the following
+	"""
+	# Based on metaclass activity - add:
+	# serializer/deserializers
+	# params, required and optional, default values
+	# security hooks
+	# API version
+
+	__metaclass__ = DescriptorMetaclass # class factory mounts here
+
+	def serialize(self,python_object,format):
+		"""
+		Serializes the object.
+		"""
+		try:
+			serializer = self.serializer_dict[format]
+			return serializer.serialize(python_object)
+		except KeyError:
+			raise UnsupportedSerializationFormat
+	
+	def deserialize(self,serialized_object,format):
+		"""
+		Deserializes the object.
+		"""
+		try:
+			serializer = self.serializer_dict[format]
+			return serializer.deserialize(serialized_object)
+		except KeyError:
+			raise UnsupportedSerializationFormat
+
+	def execute(self,request,**kwargs):
+		"""
+		Executes the function.
+		"""
+		# TODO
+	
+	@property
+	def name(self):
+		return self.__class__.__name__
+	
+	@property
+	def docs(self):
+		lines = self.__doc__.splitlines(True)
+		docstring = ''
+		for line in lines:
+			if line.isspace():
+				docstring += line
+			else:
+				docstring += line.lstrip()
+
+		return markdown.markdown(docstring)
+	
+	@property
+	def docs_plain(self):
+		return self.__doc__

@@ -1,4 +1,5 @@
 {"name":"{{ descriptor.service_name }}",
  "version":"{{ descriptor.version }}",
+ "slug":"{{ descriptor.slug }}",
  "params":[{% for param in descriptor.params %}{"name":"{{ param.name }}","type":"{{ param.type }}","required":"{{ param.required }}","default":"{{ param.default }}","description":"{{ param.description }}"}{% if not forloop.last %},{% endif %}{% endfor %}],
  "docs":"{{ descriptor.docs_plain }}"}

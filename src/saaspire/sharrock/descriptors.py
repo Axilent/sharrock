@@ -2,6 +2,7 @@
 Descriptors are definitions for functions.
 """
 import markdown
+from django.template.defaultfilters import slugify
 
 class MalformedDescriptor(Exception):
 	"""
@@ -45,19 +46,6 @@ class Param(object):
 			return None
 		else:
 			return self.process(raw_value)
-
-	# def get(self,raw):
-	# 	"""
-	# 	Accessor for param value.  Wraps requirements.
-	# 	"""
-	# 	if raw is None and self.required:
-	# 		raise ParamRequired(self.name)
-	# 	elif raw is None and self.default is None:
-	# 		return None
-	# 	elif raw is None:
-	# 		return self.process(self.default)
-	# 	else:
-	# 		return self.process(raw)
 	
 	def process(self,raw):
 		"""
@@ -249,17 +237,9 @@ class DescriptorMetaclass(type):
 			else:
 				new_attrs['service_name'] = space_out_camel_case(name)
 
-			# Params - make accessor methods
-			def make_accessor_method(name,param_instance):
-				def _accessor(self,param_name,raw):
-					return param_instance.get(param_name,raw)
-				
-				return _accessor
-
+			# Params group params
 			for attribute_name, attribute_value in attrs.items():
 				if isinstance(attribute_value,Param):
-					accessor = make_accessor_method(attribute_name,attribute_value)
-					new_attrs['get_%s' % attribute_name] = accessor
 					new_attrs['params'].append(attribute_value)
 				elif isinstance(attribute_value,Serializer):
 					new_attrs['serializer_dict'][attribute_value.name] = attribute_value
@@ -359,6 +339,10 @@ class Descriptor(object):
 	@property
 	def name(self):
 		return self.__class__.__name__
+	
+	@property
+	def slug(self):
+		return slugify(self.__class__.__name__)
 	
 	@property
 	def docs(self):

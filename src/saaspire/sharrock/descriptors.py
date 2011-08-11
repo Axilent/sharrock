@@ -195,6 +195,23 @@ class SecurityCheck(object):
 ### Descriptors ###
 ###################
 
+import re
+
+def space_out_camel_case(stringAsCamelCase):
+    """
+    By Simon Hartley, posted on http://refactormycode.com/codes/675-camelcase-to-camel-case-python-newbie
+
+    Adds spaces to a camel case string.  Failure to space out string returns the original string.
+    >>> space_out_camel_case('DMLSServicesOtherBSTextLLC')
+    'DMLS Services Other BS Text LLC'
+    """
+    
+    if stringAsCamelCase is None:
+        return None
+
+    pattern = re.compile('([A-Z][A-Z][a-z])|([a-z][A-Z])')
+    return pattern.sub(lambda m: m.group()[:1] + " " + m.group()[1:], stringAsCamelCase)
+
 class DescriptorMetaclass(type):
 	"""
 	Metaclass for descriptors.
@@ -206,6 +223,12 @@ class DescriptorMetaclass(type):
 		if name != 'Descriptor': # don't operate on the base class
 			# New attribute dictionary
 			new_attrs = {'serializer_dict':{},'params':[]}
+
+			# Name
+			if 'verbose_name' in attrs:
+				new_attrs['name'] = attrs['verbose_name']
+			else:
+				new_attrs['name'] = space_out_camel_case(name)
 
 			# Params - make accessor methods
 			def make_accessor_method(name,param_instance):

@@ -8,4 +8,6 @@ urlpatterns = patterns('saaspire.sharrock.views',
 	(r'^dir/$','directory',{'extension':'html'}),
 	(r'^describe/(?P<service_name>[\w-]+)\.(?P<extension>\w+)$','describe_service'),
 	(r'^describe/(?P<service_name>[\w-]+)/$','describe_service',{'extension':'html'}),
+	(r'^(?P<service_name>[\w-]+)/$','execute_service',{'extension':'json'}),
+	(r'^(?P<service_name>[\w-]+)\.(?P<extension>\w+)$','execute_service'),
 )

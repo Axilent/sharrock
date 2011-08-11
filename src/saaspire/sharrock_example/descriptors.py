@@ -23,8 +23,11 @@ class SimpleService(Descriptor):
 class ParameterizedService(Descriptor):
 	"""
 	This service has parameters.
+	----------------------------
+
+	It is the *dogs bollocks*.
 	"""
 	version = "1.0"
 
-	foo = UnicodeParam('foo')
+	foo = UnicodeParam('foo',required=True,description='This is the foo.  It has no spleem.')
 	bar = IntegerParam('bar')

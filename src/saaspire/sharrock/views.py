@@ -3,11 +3,19 @@ View functions for Sharrock.
 """
 from saaspire.sharrock import registry
 from django.shortcuts import render_to_response
-from django.http import Http404
+from django.http import Http404, HttpResponse
 
 def check_extension(extension):
 	if not extension in ['html','xml','json']:
 		raise Http404
+
+mtype_map = {'html':'text/html','xml':'application/xml','json':'application/json'}
+
+def get_response_mimetype(extension):
+	"""
+	Gets the proper MIME type for the http response.
+	"""
+	return mtype_map[extension]
 
 def directory(request,extension='html'):
 	"""
@@ -39,5 +47,9 @@ def execute_service(request,service_name,extension='json'):
 
 	try:
 		service = registry.descriptor_registry[service_name]
+		serialized_result = service.http_service(request,format=extension)
+		print 'service',service_name,'created result',serialized_result
+		response = HttpResponse(serialized_result,get_response_mimetype(extension))
+		return response
 	except KeyError:
 		raise Http404

@@ -33,18 +33,31 @@ class Param(object):
 		self.default = default
 		self.description = description
 	
-	def get(self,raw):
+	def get_from_dict(self,raw_dict):
 		"""
-		Accessor for param value.  Wraps requirements.
+		Gets param from raw dict.  If param is missing and required, raises
+		ParamRequired, otherwise returns None.
 		"""
-		if raw is None and self.required:
+		raw_value = raw_dict.get(self.name,self.default)
+		if raw_value is None and self.required:
 			raise ParamRequired(self.name)
-		elif raw is None and self.default is None:
+		elif raw_value is None:
 			return None
-		elif raw is None:
-			return self.process(self.default)
 		else:
-			return self.process(raw)
+			return self.process(raw_value)
+
+	# def get(self,raw):
+	# 	"""
+	# 	Accessor for param value.  Wraps requirements.
+	# 	"""
+	# 	if raw is None and self.required:
+	# 		raise ParamRequired(self.name)
+	# 	elif raw is None and self.default is None:
+	# 		return None
+	# 	elif raw is None:
+	# 		return self.process(self.default)
+	# 	else:
+	# 		return self.process(raw)
 	
 	def process(self,raw):
 		"""
@@ -162,10 +175,16 @@ class JSONSerializer(Serializer):
 	name = 'json'
 	
 	def serialize(self,python_object):
-		return json.dumps(python_object)
+		if python_object:
+			return json.dumps(python_object)
+		else:
+			return python_object
 	
 	def deserialize(self,serialized_object):
-		return json.loads(serialized_object)
+		if serialized_object:
+			return json.loads(serialized_object)
+		else:
+			return serialized_object
 
 ################
 ### Security ###
@@ -226,9 +245,9 @@ class DescriptorMetaclass(type):
 
 			# Name
 			if 'verbose_name' in attrs:
-				new_attrs['name'] = attrs['verbose_name']
+				new_attrs['service_name'] = attrs['verbose_name']
 			else:
-				new_attrs['name'] = space_out_camel_case(name)
+				new_attrs['service_name'] = space_out_camel_case(name)
 
 			# Params - make accessor methods
 			def make_accessor_method(name,param_instance):
@@ -297,11 +316,45 @@ class Descriptor(object):
 		except KeyError:
 			raise UnsupportedSerializationFormat
 
-	def execute(self,request,**kwargs):
+	def execute(self,request,data,params):
 		"""
 		Executes the function.
 		"""
-		# TODO
+		raise NotImplemented # Subclasses implement
+	
+	def http_service(self,request,format='json'):
+		"""
+		Services the request.
+		"""
+		# 1. Check security
+		self.security.check(request)
+		print 'performed security check'
+
+		# 2. Deserialize incoming data
+		data = self.deserialize(request.raw_post_data,format)
+		print 'incoming data deserialized'
+
+		# 3. Get kwargs
+		kwargs = None
+		if request.method == 'POST':
+			kwargs = request.POST.copy()
+		else:
+			kwargs = request.GET.copy()
+		print 'raw kwargs processed'
+
+		# 4. Process params
+		param_data = {}
+		for param in self.params:
+			param_data[param.name] = param.get_from_dict(kwargs)
+		print 'params constructed',param_data
+
+		# 5. Execute service
+		result = self.execute(request,data,param_data)
+		print 'service executed'
+
+		# 6. Serialize result
+		return self.serialize(result,format)
+
 	
 	@property
 	def name(self):

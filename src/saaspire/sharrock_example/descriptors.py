@@ -31,3 +31,19 @@ class ParameterizedService(Descriptor):
 
 	foo = UnicodeParam('foo',required=True,description='This is the foo.  It has no spleem.')
 	bar = IntegerParam('bar')
+
+class HelloWorld(Descriptor):
+	"""
+	This simple service simply says *hello* back to whichever name is supplied, or to *world* if
+	no name is supplied.
+	"""
+	version = "1.0"
+
+	name = UnicodeParam('name',required=False,default='world',description='The name to address.  Will address world if no name specified.')
+
+	def execute(self,request,data,params):
+		"""
+		Executes service.
+		"""
+		name = params['name']
+		return 'Hello %s!' % name

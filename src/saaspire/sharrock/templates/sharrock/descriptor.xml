@@ -1,4 +1,4 @@
-<descriptor name="{{ descriptor.name }}" version="{{ descriptor.version }}">
+<descriptor name="{{ descriptor.service_name }}" version="{{ descriptor.version }}">
 	{% for param in descriptor.params %}
 	<param name="{{ param.name }}" type="{{ param.type }}" required="{{ param.required }}" default="{{ param.default }}" description="{{ param.description }}" />
 	{% endfor %}

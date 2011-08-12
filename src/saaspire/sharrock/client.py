@@ -102,6 +102,9 @@ class ServiceException(Exception):
 	
 	def __repr__(self):
 		return '%d: %s' % (self.status_code,self.content)
+	
+	def __str__(self):
+		return '%d: %s' % (self.status_code,self.content)
 
 class HttpService(object):
 	"""
@@ -169,12 +172,12 @@ class HttpService(object):
 			body = urllib.urlencode(params)
 		
 		if body:
-			response, content = self.http.request('%s/%s' % (self.service_url,
+			response, content = self.http.request('%s/%s/' % (self.service_url,
 															 self.descriptor['slug']),
 												  method='POST',
 												  body=body)
 		else:
-			response, content = self.http.request('%s/%s' % (self.service_url,
+			response, content = self.http.request('%s/%s/' % (self.service_url,
 															 self.descriptor['slug']),
 												  method='POST')
 		

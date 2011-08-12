@@ -47,3 +47,16 @@ class HelloWorld(Descriptor):
 		"""
 		name = params['name']
 		return 'Hello %s!' % name
+
+class PostData(Descriptor):
+	"""
+	A service to which a json data object is posted.
+	"""
+	version = "1.0"
+
+	def execute(self,request,data,params):
+		"""
+		Executes the service.
+		"""
+		bar = data['foo']
+		return {'grommit':bar}

@@ -1,7 +1,7 @@
 """
 View functions for Sharrock.
 """
-from saaspire.sharrock import registry
+from sharrock import registry
 from django.shortcuts import render_to_response
 from django.http import Http404, HttpResponse
 

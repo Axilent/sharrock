@@ -1,7 +1,7 @@
 """
 Sharrock descriptors for example.
 """
-from saaspire.sharrock.descriptors import Descriptor, UnicodeParam, IntegerParam, FloatParam, ListParam, DictParam
+from sharrock.descriptors import Descriptor, UnicodeParam, IntegerParam, FloatParam, ListParam, DictParam
 
 class SimpleService(Descriptor):
 	"""

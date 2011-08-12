@@ -23,7 +23,7 @@ def build_registry():
 	"""
 	for app_path in settings.INSTALLED_APPS:
 		print 'Sharrock examinging app',app_path
-		if app_path != 'saaspire.sharrock': # don't load yourself
+		if app_path != 'sharrock': # don't load yourself
 			try:
 				module = get_module('%s.descriptors' % app_path)
 				print 'app',app_path,'has descriptors to register...'
@@ -35,7 +35,7 @@ def load_descriptors(descriptor_module):
 	"""
 	Loads descriptors in the module into the directory.
 	"""
-	from saaspire.sharrock.descriptors import Descriptor
+	from sharrock.descriptors import Descriptor
 
 	for name,attribute in inspect.getmembers(descriptor_module):
 		print 'examinging attribute',name

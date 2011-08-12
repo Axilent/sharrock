@@ -2,7 +2,7 @@
 Unit tests for Sharrock
 """
 import unittest
-from saaspire.sharrock.client import HttpClient
+from sharrock.client import HttpClient
 
 class ClientTests(unittest.TestCase):
 	"""

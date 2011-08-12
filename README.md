@@ -1,6 +1,11 @@
 Sharrock
 ========
 
+NOTE: NOT READY FOR PRIME TIME
+------------------------------
+Sharrock is in extremely early stages and might be completely broken.  Seriously, use at your own risk.  We'll take down this notice when it's semi-stable.
+
+
 Sharrock is an easy declarative RPC framework.  It consists of the following parts.
 
 *	A *function descriptor* syntax that provides information in both a machine and human readable format about the available functions a service provides, including details of acceptable parameters and return values.  The function descriptor also provides the basis for *automated API documentation*.

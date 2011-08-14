@@ -12,7 +12,7 @@ class ClientTests(unittest.TestCase):
 		"""
 		Runs before each test.
 		"""
-		self.c = HttpClient('http://localhost:8000/api')
+		self.c = HttpClient('http://localhost:8000/api','sharrock_example','1.0')
 	
 	def tearDown(self):
 		"""

@@ -110,8 +110,8 @@ class HttpService(object):
 	"""
 	Represents a described service.
 	"""
-	def __init__(self,service_url,descriptor):
-		self.service_url = service_url
+	def __init__(self,service_url,app,version,descriptor):
+		self.service_url = '%s/%s/%s' % (service_url,app,version)
 		self.descriptor = descriptor
 		self.params = {}
 		for param in self.descriptor['params']:
@@ -196,11 +196,13 @@ class HttpClient(object):
 	"""
 	Client for Sharrock.
 	"""
-	def __init__(self,service_url):
+	def __init__(self,service_url,app,version):
 		"""
 		Constructor.
 		"""
 		self._service_url = service_url
+		self._app = app
+		self._version = version
 		self._services = {}
 	
 	def _cache_descriptor(self,descriptor_name,force=False):
@@ -209,8 +211,8 @@ class HttpClient(object):
 		"""
 		if not descriptor_name in self._services or force:
 			http = httplib2.Http()
-			response, content = http.request('%s/describe/%s.json' % (self._service_url,descriptor_name),'GET')
-			self._services[descriptor_name] = HttpService(self._service_url,json.loads(content,strict=False))
+			response, content = http.request('%s/describe/%s/%s/%s.json' % (self._service_url,self._app,self._version,descriptor_name),'GET')
+			self._services[descriptor_name] = HttpService(self._service_url,self._app,self._version,json.loads(content,strict=False))
 	
 	def call(self,service_name,data=None,params={},force_descriptor_update=False,local_param_check=True,method=None):
 		"""

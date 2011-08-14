@@ -1,10 +1,23 @@
 <html>
-	<head><title>Directory</title></head>
+	<head>
+		<title>Directory</title>
+		{% include 'sharrock/style.html' %}
+	</head>
 	<body>
-	{% for descriptor in descriptors %}
-	<div class="descriptor">
-		{% include 'sharrock/descriptor_body.html' %}
-	</div>
-	{% endfor %}
+		{% for app,versions in descriptors.items %}
+		<h1>{{ app }}</h1>
+		{% for version,services in versions.items %}
+		<h2>Version {{ version }}</h2>
+		{% for descriptor in services %}
+		<div class="descriptor">
+			{% include 'sharrock/descriptor_body.html' %}
+		</div>
+		{% empty %}
+		<p>Sorry, there are no descriptors for this version of the API.</p>
+		{% endfor %}
+		{% empty %}
+		<p>Sorry, this version of the API doesn't exist.</p>
+		{% endfor %}
+		{% endfor %}
 	</body>
 </html>

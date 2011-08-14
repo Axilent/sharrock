@@ -253,10 +253,6 @@ class DescriptorMetaclass(type):
 			if not 'security' in attrs:
 				new_attrs['security'] = SecurityCheck()
 			
-			# Insist on version
-			if not 'version' in attrs:
-				raise MalformedDescriptor
-			
 			attrs.update(new_attrs)
 		
 		return type.__new__(cls,name,bases,attrs)

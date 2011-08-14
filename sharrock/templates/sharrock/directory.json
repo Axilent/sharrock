@@ -1,1 +1,1 @@
-[{% for descriptor in descriptors %}{% include 'sharrock/descriptor.json' %}{% if not forloop.last %},{% endif %}{% endfor %}]
+[{% for app,versions in descriptors.items %}{"{{ app }}":{% for version,services in versions.items %}{"{{ version }}":[{% for descriptor in services %}{% include 'sharrock/descriptor.json' %}{% if not forloop.last %},{% endif %}{% endfor %}]}{% if not forloop.last %},{% endif %}{% endfor %}}{% if not forloop.last %},{% endif %}{% endfor %}]

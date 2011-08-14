@@ -1,5 +1,11 @@
 <directory>
-	{% for descriptor in descriptors %}
-	{% include 'sharrock/descriptor.xml' %}
+	{% for app,versions in descriptors.items %}
+	{% for version,services in versions.items %}
+	<app name="{{ app }}" version="{{ version }}">
+		{% for descriptor in services %}
+		{% include 'sharrock/descriptor.xml' %}
+		{% endfor %}
+	</app>
+	{% endfor %}
 	{% endfor %}
 </directory>

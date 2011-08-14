@@ -4,6 +4,7 @@ Main function registry for Sharrock.
 from django.conf import settings
 from django.template.defaultfilters import slugify
 import inspect
+import os.path
 
 descriptor_registry = {}
 
@@ -22,26 +23,73 @@ def build_registry():
 	Builds the function descriptor registry.
 	"""
 	for app_path in settings.INSTALLED_APPS:
-		print 'Sharrock examinging app',app_path
+		print 'looking for descriptors in',app_path
 		if app_path != 'sharrock': # don't load yourself
 			try:
+				print 'getting module','%s.descriptors' % app_path
 				module = get_module('%s.descriptors' % app_path)
-				print 'app',app_path,'has descriptors to register...'
-				load_descriptors(module)
+				print 'module',module,'acquired'
+				if is_package(module):
+					print module,'is a package.  Loading multiple versions'
+					load_multiple_versions(app_path,module)
+				else:
+					print module,'is a simple module, loading one version of API'
+					load_descriptors(app_path,module)
 			except AttributeError:
-				print app_path,'has no descriptors module'
+				pass # no descriptors in that module
 
-def load_descriptors(descriptor_module):
+def load_multiple_versions(app_path,package):
+	"""
+	Loads multiple versions of an app's API.  Multiple versions are stored in submodules of
+	a 'descriptors' package within the app.  (When there is only one version of an API,
+	'descriptors' is a simple module).
+	"""
+	print 'loading multiple versions from',app_path
+	for sublabel in package.__all__:
+		submodule = get_module('%s.%s' % (package.__name__,sublabel))
+		load_descriptors(app_path,submodule)
+
+def load_descriptors(app_path,descriptor_module):
 	"""
 	Loads descriptors in the module into the directory.
 	"""
 	from sharrock.descriptors import Descriptor
 
+	version = '0.1dev' # default version
+	if hasattr(descriptor_module,'version'):
+		version = getattr(descriptor_module,'version')
+
 	for name,attribute in inspect.getmembers(descriptor_module):
-		print 'examinging attribute',name
 		if inspect.isclass(attribute) and issubclass(attribute,Descriptor) and not attribute is Descriptor:
-			print 'registering descriptor',name
-			descriptor_registry[slugify(name)] = attribute() # put instance of the descriptor into the registry
+			descriptor_registry[(app_path,version,slugify(name))] = attribute() # put instance of the descriptor into the registry
 	
 	print 'Sharrock registered descriptors:',descriptor_registry.keys()
 
+def get_descriptor(app_label,version,descriptor_slug):
+	"""
+	Gets the matching descriptor.
+	"""
+	return descriptor_registry[(app_label,version,descriptor_slug)]
+
+def is_package(module):
+	"""
+	Checks if the specified module is a package.
+	"""
+	return module.__file__.endswith('__init__.py') or module.__file__.endswith('__init__.pyc')
+
+def directory(app_label=None,specified_version=None):
+	"""
+	Creates a directory of service descriptors.
+	"""
+	d = {}
+	for key, value in descriptor_registry.items():
+		app,version,name = key
+		if not app_label or app_label == app:
+			app_dict = d.get(app,{})
+			if not specified_version or specified_version == version:
+				descriptors = app_dict.get(version,[])
+				descriptors.append(value)
+				app_dict[version] = descriptors
+			d[app] = app_dict
+	
+	return d

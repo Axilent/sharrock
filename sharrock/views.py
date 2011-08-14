@@ -17,17 +17,17 @@ def get_response_mimetype(extension):
 	"""
 	return mtype_map[extension]
 
-def directory(request,extension='html'):
+def directory(request,app=None,version=None,extension='html'):
 	"""
 	Gets a complete directory of the function descriptors.
 	"""
 	check_extension(extension)
 
-	descriptors = [descriptor for descriptor in registry.descriptor_registry.values()]
+	descriptors = registry.directory(app_label=app,specified_version=version)
 	return render_to_response('sharrock/directory.%s' % extension,{'descriptors':descriptors})
 
 
-def describe_service(request,service_name,extension='html'):
+def describe_service(request,app,version,service_name,extension='html'):
 	"""
 	Gets a function descriptor.
 	"""
@@ -35,20 +35,19 @@ def describe_service(request,service_name,extension='html'):
 
 	try:
 		return render_to_response('sharrock/descriptor.%s' % extension,
-								  {'descriptor':registry.descriptor_registry[service_name]})
+								  {'descriptor':registry.get_descriptor(app,version,service_name)})
 	except KeyError:
 		raise Http404
 
-def execute_service(request,service_name,extension='json'):
+def execute_service(request,app,version,service_name,extension='json'):
 	"""
 	Executes the named service.
 	"""
 	check_extension(extension)
 
 	try:
-		service = registry.descriptor_registry[service_name]
+		service = registry.get_descriptor(app,version,service_name)
 		serialized_result = service.http_service(request,format=extension)
-		print 'service',service_name,'created result',serialized_result
 		response = HttpResponse(serialized_result,get_response_mimetype(extension))
 		return response
 	except KeyError:

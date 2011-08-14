@@ -304,11 +304,9 @@ class Descriptor(object):
 		"""
 		# 1. Check security
 		self.security.check(request)
-		print 'performed security check'
 
 		# 2. Deserialize incoming data
 		data = self.deserialize(request.raw_post_data,format)
-		print 'incoming data deserialized'
 
 		# 3. Get kwargs
 		kwargs = None
@@ -316,17 +314,14 @@ class Descriptor(object):
 			kwargs = request.POST.copy()
 		else:
 			kwargs = request.GET.copy()
-		print 'raw kwargs processed'
 
 		# 4. Process params
 		param_data = {}
 		for param in self.params:
 			param_data[param.name] = param.get_from_dict(kwargs)
-		print 'params constructed',param_data
 
 		# 5. Execute service
 		result = self.execute(request,data,param_data)
-		print 'service executed'
 
 		# 6. Serialize result
 		return self.serialize(result,format)

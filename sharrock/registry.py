@@ -23,17 +23,12 @@ def build_registry():
 	Builds the function descriptor registry.
 	"""
 	for app_path in settings.INSTALLED_APPS:
-		print 'looking for descriptors in',app_path
 		if app_path != 'sharrock': # don't load yourself
 			try:
-				print 'getting module','%s.descriptors' % app_path
 				module = get_module('%s.descriptors' % app_path)
-				print 'module',module,'acquired'
 				if is_package(module):
-					print module,'is a package.  Loading multiple versions'
 					load_multiple_versions(app_path,module)
 				else:
-					print module,'is a simple module, loading one version of API'
 					load_descriptors(app_path,module)
 			except AttributeError:
 				pass # no descriptors in that module
@@ -44,7 +39,6 @@ def load_multiple_versions(app_path,package):
 	a 'descriptors' package within the app.  (When there is only one version of an API,
 	'descriptors' is a simple module).
 	"""
-	print 'loading multiple versions from',app_path
 	for sublabel in package.__all__:
 		submodule = get_module('%s.%s' % (package.__name__,sublabel))
 		load_descriptors(app_path,submodule)
@@ -63,7 +57,6 @@ def load_descriptors(app_path,descriptor_module):
 		if inspect.isclass(attribute) and issubclass(attribute,Descriptor) and not attribute is Descriptor:
 			descriptor_registry[(app_path,version,slugify(name))] = attribute() # put instance of the descriptor into the registry
 	
-	print 'Sharrock registered descriptors:',descriptor_registry.keys()
 
 def get_descriptor(app_label,version,descriptor_slug):
 	"""

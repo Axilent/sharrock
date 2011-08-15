@@ -1,0 +1,30 @@
+<resource name="{{ resource.name }}" slug="{{ resource.slug }}">
+	{% if resource.get %}
+	<get>
+		{% with resource.get as descriptor %}
+		{% include 'sharrock/descriptor.xml' %}
+		{% endwith %}
+	</get>
+	{% endif %}
+	{% if resource.post %}
+	<post>
+		{% with resource.post as descriptor %}
+		{% include 'sharrock/descriptor.xml' %}
+		{% endwith %}
+	</post>
+	{% endif %}
+	{% if resource.put %}
+	<put>
+		{% with resource.put as descriptor %}
+		{% include 'sharrock/descriptor.xml' %}
+		{% endwith %}
+	</put>
+	{% endif %}
+	{% if resource.delete %}
+	<delete>
+		{% with resource.delete as descriptor %}
+		{% include 'sharrock/descriptor.xml' %}
+		{% endwith %}
+	</delete>
+	{% endif %}
+</resource>

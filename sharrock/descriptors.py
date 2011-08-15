@@ -385,6 +385,14 @@ class Resource(object):
 	response_codes = {'get':200,'post':201,'delete':200,'put':200}
 	headers = {'json':{'Content-type':'application/json'},'xml':{'Content-type':'application/xml'}}
 
+	@property
+	def name(self):
+		return self.__class__.__name__
+	
+	@property
+	def slug(self):
+		return slugify(self.__class__.__name__)
+
 	def http_service(self,request,format='json'):
 		"""
 		Services the request.

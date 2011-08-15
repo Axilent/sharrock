@@ -1,0 +1,26 @@
+<h2>{{ resource.name }}</h2>
+<h4>{{ resource.slug }}</h4>
+{% if resource.get %}
+<h3>GET</h3>
+{% with resource.get as descriptor %}
+{% include 'sharrock/descriptor_body.html' %}
+{% endwith %}
+{% endif %}
+{% if resource.post %}
+<h3>POST</h3>
+{% with resource.post as descriptor %}
+{% include 'sharrock/descriptor_body.html' %}
+{% endwith %}
+{% endif %}
+{% if resource.put %}
+<h3>PUT</h3>
+{% with resource.put as descriptor %}
+{% include 'sharrock/descriptor_body.html' %}
+{% endwith %}
+{% endif %}
+{% if resource.delete %}
+<h3>DELETE</h3>
+{% with resource.delete as descriptor %}
+{% include 'sharrock/descriptor_body.html' %}
+{% endwith %}
+{% endif %}

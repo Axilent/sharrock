@@ -1,0 +1,1 @@
+[{% for app,versions in resources.items %}{"{{ app }}":{% for version,services in versions.items %}{"{{ version }}":[{% for resource in services %}{% include 'sharrock/resource.json' %}{% if not forloop.last %},{% endif %}{% endfor %}]}{% if not forloop.last %},{% endif %}{% endfor %}}{% if not forloop.last %},{% endif %}{% endfor %}]

@@ -1,0 +1,11 @@
+<directory>
+	{% for app,versions in resources.items %}
+	{% for version,services in versions.items %}
+	<app name="{{ app }}" version="{{ version }}">
+		{% for resource in services %}
+		{% include 'sharrock/resource.xml' %}
+		{% endfor %}
+	</app>
+	{% endfor %}
+	{% endfor %}
+</directory>

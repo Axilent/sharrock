@@ -1,0 +1,23 @@
+<html>
+	<head>
+		<title>Resource Directory</title>
+		{% include 'sharrock/style.html' %}
+	</head>
+	<body>
+		{% for app,versions in resources.items %}
+		<h1>{{ app }}</h1>
+		{% for version,services in versions.items %}
+		<h2>Version {{ version }}</h2>
+		{% for resource in services %}
+		<div class="resource">
+			{% include 'sharrock/resource_body.html' %}
+		</div>
+		{% empty %}
+		<p>Sorry there are no resources for this version of the API.</p>
+		{% endfor %}
+		{% empty %}
+		<p>Sorry there are no specified resources for this API version.</p>
+		{% endfor %}
+		{% endfor %}
+	</body>
+</html>

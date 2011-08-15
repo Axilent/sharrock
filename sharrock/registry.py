@@ -96,3 +96,21 @@ def directory(app_label=None,specified_version=None):
 			d[app] = app_dict
 	
 	return d
+
+def resource_directory(app_label=None,specified_version=None):
+	"""
+	Creates a directory for resources.
+	"""
+	d = {}
+	for key, value in resource_registry.items():
+		app,version,name = key
+		if not app_label or app_label == app:
+			app_dict = d.get(app,{})
+			if not specified_version or specified_version == version:
+				resources = app_dict.get(version,[])
+				resources.append(value)
+				app_dict[version] = resources
+			d[app] = app_dict
+	
+	return d
+

@@ -1,5 +1,7 @@
+{% if not noname %}
 <h3>{{ descriptor.service_name }}</h3>
 <h4>{{ descriptor.slug }}</h4>
+{% endif %}
 {% if descriptor.params %}
 <table class="params">
 	<tr>

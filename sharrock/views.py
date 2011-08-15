@@ -76,3 +76,13 @@ def execute_resource(request,app,version,resource_name,extension='json'):
 	except MethodNotAllowed as mna:
 		return HttpResponse(str(mna),status=405) # the employed http method is not supported
 
+def resource_directory(request,app=None,version=None,extension='html'):
+	"""
+	Gets a complete directory of resources.
+	"""
+	check_extension(extension)
+
+	resources = registry.resource_directory(app_label=app,specified_version=version)
+	return render_to_response('sharrock/resource_directory.%s' % extension,{'resources':resources,'noname':True})
+
+

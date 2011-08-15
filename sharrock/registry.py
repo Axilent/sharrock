@@ -7,6 +7,7 @@ import inspect
 import os.path
 
 descriptor_registry = {}
+resource_registry = {}
 
 def get_module(module_name):
     """
@@ -47,7 +48,7 @@ def load_descriptors(app_path,descriptor_module):
 	"""
 	Loads descriptors in the module into the directory.
 	"""
-	from sharrock.descriptors import Descriptor
+	from sharrock.descriptors import Descriptor, Resource
 
 	version = '0.1dev' # default version
 	if hasattr(descriptor_module,'version'):
@@ -55,7 +56,10 @@ def load_descriptors(app_path,descriptor_module):
 
 	for name,attribute in inspect.getmembers(descriptor_module):
 		if inspect.isclass(attribute) and issubclass(attribute,Descriptor) and not attribute is Descriptor:
-			descriptor_registry[(app_path,version,slugify(name))] = attribute() # put instance of the descriptor into the registry
+			if not hasattr(attribute,'visible') or attribute.visible: # skip over descriptors with visible=False set
+				descriptor_registry[(app_path,version,slugify(name))] = attribute() # put instance of the descriptor into the registry
+		elif inspect.isclass(attribute) and issubclass(attribute,Resource) and not attribute is Resource:
+			resource_registry[(app_path,version,slugify(name))] = attribute() # put instance of resource into resource registry
 	
 
 def get_descriptor(app_label,version,descriptor_slug):
@@ -63,6 +67,12 @@ def get_descriptor(app_label,version,descriptor_slug):
 	Gets the matching descriptor.
 	"""
 	return descriptor_registry[(app_label,version,descriptor_slug)]
+
+def get_resource(app_label,version,resource_slug):
+	"""
+	Gets the matching resource.
+	"""
+	return resource_registry[(app_label,version,resource_slug)]
 
 def is_package(module):
 	"""

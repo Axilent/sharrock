@@ -3,6 +3,8 @@ Descriptors are definitions for functions.
 """
 import markdown
 from django.template.defaultfilters import slugify
+from urlparse import parse_qs
+from django.http import QueryDict
 
 class MalformedDescriptor(Exception):
 	"""
@@ -276,6 +278,8 @@ class Descriptor(object):
 		"""
 		Serializes the object.
 		"""
+		if python_object is None:
+			return None
 		try:
 			serializer = self.serializer_dict[format]
 			return serializer.serialize(python_object)
@@ -286,6 +290,8 @@ class Descriptor(object):
 		"""
 		Deserializes the object.
 		"""
+		if serialized_object is None:
+			return None
 		try:
 			serializer = self.serializer_dict[format]
 			return serializer.deserialize(serialized_object)
@@ -298,6 +304,20 @@ class Descriptor(object):
 		"""
 		raise NotImplemented # Subclasses implement
 	
+	def extract_kwargs(self,request):
+		"""
+		Attempts to extract keyword args from the raw data.  Returns None
+		if no kwargs are to be had.
+		"""
+		if request.GET:
+			return request.GET.copy()
+		elif request.POST:
+			return request.POST.copy()
+		elif parse_qs(request.raw_post_data):
+			return QueryDict(request.raw_post_data)
+		else:
+			return {}
+	
 	def http_service(self,request,format='json'):
 		"""
 		Services the request.
@@ -309,11 +329,7 @@ class Descriptor(object):
 		data = self.deserialize(request.raw_post_data,format)
 
 		# 3. Get kwargs
-		kwargs = None
-		if request.method == 'POST':
-			kwargs = request.POST.copy()
-		else:
-			kwargs = request.GET.copy()
+		kwargs = self.extract_kwargs(request)
 
 		# 4. Process params
 		param_data = {}
@@ -350,3 +366,79 @@ class Descriptor(object):
 	@property
 	def docs_plain(self):
 		return self.__doc__
+
+#################
+### Resources ###
+#################
+class MethodNotAllowed(Exception):
+	"""
+	Represents a HTTP 405 Method Not Allowed response.
+	Raised when an attempt to access an unimplemented method on
+	a resource.
+	"""
+
+class Resource(object):
+	"""
+	A resource is a roll-up of services to provide RESTful functionality.
+	This can be useful to clients that expect REST behavior.
+	"""
+	response_codes = {'get':200,'post':201,'delete':200,'put':200}
+	headers = {'json':{'Content-type':'application/json'},'xml':{'Content-type':'application/xml'}}
+
+	def http_service(self,request,format='json'):
+		"""
+		Services the request.
+		"""
+		# Check implementation
+		self.check_method(request)
+
+		# Get action method
+		action_method_name = request.method.lower()
+		action_method = getattr(self,action_method_name)
+
+		# Get kwargs
+		kwargs = action_method.extract_kwargs(request)
+
+		# Process params or data
+		param_data = {}
+		data = None
+		print 'action method params:',action_method.params
+		for param in action_method.params:
+			param_data[param.name] = param.get_from_dict(kwargs)
+		
+		if not kwargs:
+			# Deserialize incoming data
+			data = action_method.deserialize(request.raw_post_data,format)
+		
+		# Execute service
+		result = action_method.execute(request,data,param_data)
+
+		# Serialize result
+		serialized_result = action_method.serialize(result,format)
+
+		# response headers and status
+		response_headers = self.response_headers(request,format)
+		status_code = self.status_code(request)
+
+		return (status_code,response_headers,serialized_result)
+	
+	def check_method(self,request):
+		"""
+		Checks if the HTTP method has been implemented.
+		"""
+		method = request.method.lower()
+		if not hasattr(self,method):
+			raise MethodNotAllowed
+	
+	def response_headers(self,request,format='json'):
+		"""
+		Generates a list of appropriate response headers for the http response.
+		"""
+		return Resource.headers[format]
+	
+	def status_code(self,request):
+		"""
+		Generates the appropriate success status code for the http response.
+		"""
+		return Resource.response_codes[request.method.lower()]
+	

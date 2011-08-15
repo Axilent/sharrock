@@ -410,7 +410,6 @@ class Resource(object):
 		# Process params or data
 		param_data = {}
 		data = None
-		print 'action method params:',action_method.params
 		for param in action_method.params:
 			param_data[param.name] = param.get_from_dict(kwargs)
 		

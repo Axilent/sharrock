@@ -3,4 +3,4 @@ env
 *.pyc
 settings.py
 data.db
-
+.DS_Store

@@ -31,7 +31,7 @@ def build_registry():
                     load_multiple_versions(app_path,module)
                 else:
                     load_descriptors(app_path,module)
-            except AttributeError:
+            except ImportError:
                 pass # no descriptors in that module
 
 def load_multiple_versions(app_path,package):

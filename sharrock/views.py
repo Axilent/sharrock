@@ -63,7 +63,7 @@ def execute_resource(request,app,version,resource_name,extension='json'):
     check_extension(extension)
 
     try:
-        resource = registry.get_resource(app,version,resource_name)
+        resource = registry.get_descriptor(app,version,resource_name)
         status_code, response_headers, serialized_result = resource.http_service(request,format=extension)
         response = HttpResponse(content=serialized_result,mimetype=response_headers['Content-type'],status=status_code)
         for header_name, header_value  in response_headers.items():

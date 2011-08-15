@@ -1,7 +1,10 @@
-{% if not noname %}
+{% if not resource %}
 <h3>{{ descriptor.service_name }}</h3>
 <h4>{{ descriptor.slug }}</h4>
 {% endif %}
+<div class="docs">
+	{{ descriptor.docs|safe }}
+</div>
 {% if descriptor.params %}
 <table class="params">
 	<tr>
@@ -22,6 +25,3 @@
 	{% endfor %}
 </table>
 {% endif %}
-<div class="docs">
-	{{ descriptor.docs|safe }}
-</div>

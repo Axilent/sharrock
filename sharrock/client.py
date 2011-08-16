@@ -158,7 +158,7 @@ class HttpService(object):
         """
         Makes a post request.  If data is present it will be presented as the body,
         otherwise params will be presented.  If both are defined an exception will
-        be throwsn.
+        be thrown.
         """
         response, content = None, None
         body = None
@@ -251,6 +251,112 @@ class HttpClient(object):
             """
             return self.parent.call(self.service_name,data=data,params=kwargs)
 
+######################
+### RESTful Client ###
+######################
+
+class ResourceOperation(object):
+    """
+    Represents a method call (GET, POST, PUT or DELETE) on a resource.
+    """
+    def __init__(self,service_url,app,version,resource_slug,descriptor,http_method):
+        self.service_url = service_url
+        self.app = app
+        self.version = version
+        self.resource_slug = resource_slug
+        self.descriptor = descriptor
+        self.http_method = http_method
+        self.params = {}
+        for param in self.descriptor['params']:
+            required = True if param['required'] == 'True' else False
+            self.params[param['name']] = ParamValidator(param['name'],param['type'],required)
+        self.http = httplib2.Http()
+    
+    def check_params(self,params):
+        """
+        Checks the parameters.
+        """
+        [validator.check(params) for validator in self.params.values()]
+    
+    def process_response(self,response,content):
+        """
+        Processes response from the server.
+        """
+        if response.status >= 400:
+            # error
+            raise ServiceException(response.status,content)
+        else:
+            if content:
+                return json.loads(content,strict=False)
+            else:
+                return None
+    
+    def _url(self):
+        """
+        Constructs the resource url.
+        """
+        return '%s/%s/%s/%s.json' % (self.service_url,self.app,self.version,self.resource_slug)
+    
+    def __call__(self,data=None,params=None,local_params_check=True):
+        """
+        Calls the http method.
+        """
+        # sanity check
+        if data and params:
+            raise ValueError('Either data or params can be submitted, but not both.')
+
+        response, content = None, None
+
+        if local_params_check:
+            self.check_params(params)
         
+        if self.http_method == 'GET' or self.http_method == 'DELETE':
+            if params:
+                response, content = self.http.request('%s?%s' % (self._url(),urllib.urlencode(params)),method=self.http_method)
+            else:
+                response, content = self.http.request(self._url(),method=self.http_method)
+        else:
+            if params:
+                response, content = self.http.request(self._url(),method=self.http_method,body=urllib.urlencode(params))
+            elif data:
+                response, content = self.http.request(self._url(),method=self.http_method,body=json.dumps(data))
+            else:
+                response, content = self.http.request(self._url(),method=self.http_method)
+        
+        return self.process_response(response,content)
 
 
+class ResourceClient(object):
+    """
+    A client for the Sharrock REST api.  An instance of the RestfulClient
+    represents a single resource.
+    """
+    def __init__(self,service_url,app,version,resource_slug):
+        self._service_url = service_url
+        self._app = app
+        self._version = version
+        self._resource_slug = resource_slug
+        self._descriptor = None
+        self.get = None
+        self.post = None
+        self.put = None
+        self.delete = None
+        self._cache_descriptor()
+    
+    def _cache_descriptor(self,force=False):
+        """
+        Locally caches the resource descriptor.
+        """
+        if not self._descriptor or force:
+            http = httplib2.Http()
+            response, content = http.request('%s/describe/%s/%s/%s.json' % (self._service_url,self._app,self._version,self._resource_slug),'GET')
+            self._descriptor = json.loads(content,strict=False)
+            if 'get' in self._descriptor:
+                self.get = ResourceOperation(self._service_url,self._app,self._version,self._resource_slug,self._descriptor['get'],'GET')
+            if 'post' in self._descriptor:
+                self.post = ResourceOperation(self._service_url,self._app,self._version,self._resource_slug,self._descriptor['post'],'POST')
+            if 'put' in self._descriptor:
+                self.put = ResourceOperation(self._service_url,self._app,self._version,self._resource_slug,self._descriptor['put'],'PUT')
+            if 'delete' in self._descriptor:
+                self.delete = ResourceOperation(self._service_url,self._app,self._version,self._resource_slug,self._descriptor['delete'],'DELETE')
+    

@@ -28,15 +28,19 @@ def directory(request,app=None,version=None,extension='html'):
     return render_to_response('sharrock/directory.%s' % extension,{'descriptors':descriptors})
 
 
-def describe_service(request,app,version,service_name,extension='html'):
+def describe_service(request,app,version,service_name,extension='html',service_type='function'):
     """
     Gets a function descriptor.
     """
     check_extension(extension)
 
     try:
-        return render_to_response('sharrock/descriptor.%s' % extension,
-                                  {'descriptor':registry.get_descriptor(app,version,service_name)})
+        if service_type == 'resource':
+            return render_to_response('sharrock/resource.%s' % extension,
+                                      {'resource':registry.get_descriptor(app,version,service_name)})
+        else:
+            return render_to_response('sharrock/descriptor.%s' % extension,
+                                      {'descriptor':registry.get_descriptor(app,version,service_name)})
     except KeyError:
         raise Http404
 

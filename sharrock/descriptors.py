@@ -309,6 +309,9 @@ class Descriptor(object):
         Attempts to extract keyword args from the raw data.  Returns None
         if no kwargs are to be had.
         """
+        if not params:
+            return {} # no params means no keyword args
+
         if request.GET:
             return request.GET.copy()
         elif request.POST:

@@ -4,6 +4,7 @@ Automatic client for Sharrock.
 import json
 import httplib2
 import urllib
+import base64
 
 
 class ParamException(Exception):
@@ -278,14 +279,12 @@ class ResourceOperation(object):
         self.descriptor = descriptor
         self.http_method = http_method
         self.params = {}
+        self.user = auth_user
+        self.password = auth_password
         for param in self.descriptor['params']:
             required = True if param['required'] == 'True' else False
             self.params[param['name']] = ParamValidator(param['name'],param['type'],required)
         self.http = httplib2.Http()
-
-        # auth
-        if auth_user or auth_password:
-            self.http.add_credential(auth_user,auth_password)
     
     def check_params(self,params):
         """
@@ -312,6 +311,16 @@ class ResourceOperation(object):
         """
         return '%s/%s/%s/%s.json' % (self.service_url,self.app,self.version,self.resource_slug)
     
+    def _auth(self):
+        """
+        Generations basic auth headers.
+        """
+        if self.user or self.password:
+            userpass = base64.b64encode('%s:%s' % (self.user,self.password))
+            return {'Authentication':'Basic %s' % userpass}
+        else:
+            return {}
+    
     def __call__(self,data=None,params=None,local_params_check=True):
         """
         Calls the http method.
@@ -325,18 +334,20 @@ class ResourceOperation(object):
         if local_params_check:
             self.check_params(params)
         
+        headers = self._auth()
+        
         if self.http_method == 'GET' or self.http_method == 'DELETE':
             if params:
-                response, content = self.http.request('%s?%s' % (self._url(),urllib.urlencode(params)),method=self.http_method)
+                response, content = self.http.request('%s?%s' % (self._url(),urllib.urlencode(params)),method=self.http_method,headers=headers)
             else:
-                response, content = self.http.request(self._url(),method=self.http_method)
+                response, content = self.http.request(self._url(),method=self.http_method,headers=headers)
         else:
             if params:
-                response, content = self.http.request(self._url(),method=self.http_method,body=urllib.urlencode(params))
+                response, content = self.http.request(self._url(),method=self.http_method,body=urllib.urlencode(params),headers=headers)
             elif data:
-                response, content = self.http.request(self._url(),method=self.http_method,body=json.dumps(data))
+                response, content = self.http.request(self._url(),method=self.http_method,body=json.dumps(data),headers=headers)
             else:
-                response, content = self.http.request(self._url(),method=self.http_method)
+                response, content = self.http.request(self._url(),method=self.http_method,headers=headers)
         
         return self.process_response(response,content)
 
@@ -366,14 +377,14 @@ class ResourceClient(object):
         """
         if not self._descriptor or force:
             http = httplib2.Http()
-            response, content = http.request('%s/describe/%s/%s/%s.json' % (self._service_url,self._app,self._version,self._resource_slug),'GET')
+            response, content = http.request('%s/describe/%s/%s/%s.json' % (self._service_url,self._app,self._version,self._resource_slug),'GET',auth_user=self.user,auth_password=self.password)
             self._descriptor = json.loads(content,strict=False)
             if 'get' in self._descriptor:
-                self.get = ResourceOperation(self._service_url,self._app,self._version,self._resource_slug,self._descriptor['get'],'GET')
+                self.get = ResourceOperation(self._service_url,self._app,self._version,self._resource_slug,self._descriptor['get'],'GET',auth_user=self.user,auth_password=self.password)
             if 'post' in self._descriptor:
-                self.post = ResourceOperation(self._service_url,self._app,self._version,self._resource_slug,self._descriptor['post'],'POST')
+                self.post = ResourceOperation(self._service_url,self._app,self._version,self._resource_slug,self._descriptor['post'],'POST',auth_user=self.user,auth_password=self.password)
             if 'put' in self._descriptor:
-                self.put = ResourceOperation(self._service_url,self._app,self._version,self._resource_slug,self._descriptor['put'],'PUT')
+                self.put = ResourceOperation(self._service_url,self._app,self._version,self._resource_slug,self._descriptor['put'],'PUT',auth_user=self.user,auth_password=self.password)
             if 'delete' in self._descriptor:
-                self.delete = ResourceOperation(self._service_url,self._app,self._version,self._resource_slug,self._descriptor['delete'],'DELETE')
+                self.delete = ResourceOperation(self._service_url,self._app,self._version,self._resource_slug,self._descriptor['delete'],'DELETE',auth_user=self.user,auth_password=self.password)
     

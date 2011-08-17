@@ -110,7 +110,7 @@ class HttpService(object):
     """
     Represents a described service.
     """
-    def __init__(self,service_url,app,version,descriptor):
+    def __init__(self,service_url,app,version,descriptor,auth_user='',auth_password=''):
         self.service_url = '%s/%s/%s' % (service_url,app,version)
         self.descriptor = descriptor
         self.params = {}
@@ -119,6 +119,10 @@ class HttpService(object):
             self.params[param['name']] = ParamValidator(param['name'],param['type'],required)
         
         self.http = httplib2.Http()
+
+        # auth
+        if auth_user or auth_password:
+            self.http.add_credentials(auth_user,auth_password)
     
     def check_params(self,params):
         """
@@ -196,7 +200,7 @@ class HttpClient(object):
     """
     Client for Sharrock.
     """
-    def __init__(self,service_url,app,version):
+    def __init__(self,service_url,app,version,auth_user='',auth_password=''):
         """
         Constructor.
         """
@@ -204,6 +208,8 @@ class HttpClient(object):
         self._app = app
         self._version = version
         self._services = {}
+        self.user = auth_user
+        self.password = auth_password
     
     def _cache_descriptor(self,descriptor_name,force=False):
         """
@@ -212,7 +218,12 @@ class HttpClient(object):
         if not descriptor_name in self._services or force:
             http = httplib2.Http()
             response, content = http.request('%s/describe/%s/%s/%s.json' % (self._service_url,self._app,self._version,descriptor_name),'GET')
-            self._services[descriptor_name] = HttpService(self._service_url,self._app,self._version,json.loads(content,strict=False))
+            self._services[descriptor_name] = HttpService(self._service_url,
+                                                          self._app,
+                                                          self._version,
+                                                          json.loads(content,strict=False),
+                                                          auth_user=self.user,
+                                                          auth_password=self.password)
     
     def call(self,service_name,data=None,params={},force_descriptor_update=False,local_param_check=True,method=None):
         """
@@ -259,7 +270,7 @@ class ResourceOperation(object):
     """
     Represents a method call (GET, POST, PUT or DELETE) on a resource.
     """
-    def __init__(self,service_url,app,version,resource_slug,descriptor,http_method):
+    def __init__(self,service_url,app,version,resource_slug,descriptor,http_method,auth_user='',auth_password=''):
         self.service_url = service_url
         self.app = app
         self.version = version
@@ -271,6 +282,10 @@ class ResourceOperation(object):
             required = True if param['required'] == 'True' else False
             self.params[param['name']] = ParamValidator(param['name'],param['type'],required)
         self.http = httplib2.Http()
+
+        # auth
+        if auth_user or auth_password:
+            self.http.add_credential(auth_user,auth_password)
     
     def check_params(self,params):
         """
@@ -331,7 +346,7 @@ class ResourceClient(object):
     A client for the Sharrock REST api.  An instance of the RestfulClient
     represents a single resource.
     """
-    def __init__(self,service_url,app,version,resource_slug):
+    def __init__(self,service_url,app,version,resource_slug,auth_user='',auth_password=''):
         self._service_url = service_url
         self._app = app
         self._version = version
@@ -341,6 +356,8 @@ class ResourceClient(object):
         self.post = None
         self.put = None
         self.delete = None
+        self.user = auth_user
+        self.password = auth_password
         self._cache_descriptor()
     
     def _cache_descriptor(self,force=False):

@@ -21,6 +21,15 @@ Basic Parts
 *	A Python *RPC Client* for Sharrock, making it easy to build client code against a Sharrock service by using the function descriptors.
 *   An optional *REST* layer that allows functions to be rolled up into resources, and a ResourceClient in Python that allows for RESTful interaction.
 
+Requirements
+------------
+
+Sharrock requires the following libraries:
+
+*   *[Django](http://www.djangoproject.com)* 1.2 or above
+*   *[httplib2](http://code.google.com/p/httplib2/)* For the client libs.
+*   *[Markdown](http://www.freewisdom.org/projects/python-markdown/) for docstring parsing.
+
 Installation
 ------------
 

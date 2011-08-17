@@ -120,16 +120,24 @@ class HttpService(object):
             self.params[param['name']] = ParamValidator(param['name'],param['type'],required)
         
         self.http = httplib2.Http()
-
-        # auth
-        if auth_user or auth_password:
-            self.http.add_credentials(auth_user,auth_password)
+        self.user = auth_user
+        self.password = auth_password
     
     def check_params(self,params):
         """
         Checks the parameters.
         """
         [validator.check(params) for validator in self.params.values()]
+    
+    def _auth(self):
+        """
+        Generations basic auth headers.
+        """
+        if self.user or self.password:
+            userpass = base64.b64encode('%s:%s' % (self.user,self.password))
+            return {'Authentication':'Basic %s' % userpass}
+        else:
+            return {}
     
     def process_response(self,response,content):
         """
@@ -148,14 +156,15 @@ class HttpService(object):
         """
         Makes a get request.
         """
+        headers = self._auth()
         response, content = None, None
         if params:
             response, content = self.http.request('%s/%s?%s' % (self.service_url,
                                                                 self.descriptor['slug'],
-                                                                urllib.urlencode(params)),method='GET')
+                                                                urllib.urlencode(params)),method='GET',headers=headers)
         else:
             response, content = self.http.request('%s/%s' % (self.service_url,
-                                                             self.descriptor['slug']),method='GET')
+                                                             self.descriptor['slug']),method='GET',headers=headers)
         
         return self.process_response(response,content)
     
@@ -165,6 +174,7 @@ class HttpService(object):
         otherwise params will be presented.  If both are defined an exception will
         be thrown.
         """
+        headers = self._auth()
         response, content = None, None
         body = None
 
@@ -180,11 +190,13 @@ class HttpService(object):
             response, content = self.http.request('%s/%s/' % (self.service_url,
                                                              self.descriptor['slug']),
                                                   method='POST',
-                                                  body=body)
+                                                  body=body,
+                                                  headers=headers)
         else:
             response, content = self.http.request('%s/%s/' % (self.service_url,
                                                              self.descriptor['slug']),
-                                                  method='POST')
+                                                  method='POST',
+                                                  headers=headers)
         
         return self.process_response(response,content)
     

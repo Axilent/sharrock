@@ -2,6 +2,9 @@
 <h3>{{ descriptor.service_name }}</h3>
 <h4>{{ descriptor.slug }}</h4>
 {% endif %}
+{% if descriptor.security.permissions %}
+<p><em>Permissions: {{ descriptor.security.permissions|join:" " }}</em</p>
+{% endif %}
 <div class="docs">
 	{{ descriptor.docs|safe }}
 </div>

@@ -1,7 +1,7 @@
 """
 Sharrock descriptors for example.
 """
-from sharrock.descriptors import Descriptor, UnicodeParam, IntegerParam, FloatParam, ListParam, DictParam
+from sharrock.descriptors import Descriptor, UnicodeParam, IntegerParam, FloatParam, ListParam, DictParam, SecurityCheck
 
 version = '1.0'
 
@@ -36,6 +36,7 @@ class HelloWorld(Descriptor):
     This simple service simply says *hello* back to whichever name is supplied, or to *world* if
     no name is supplied.
     """
+    security = SecurityCheck('anybody')
     name = UnicodeParam('name',required=False,default='world',description='The name to address.  Will address world if no name specified.')
 
     def execute(self,request,data,params):

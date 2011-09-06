@@ -20,6 +20,7 @@ Basic Parts
 *	A *handler* framework for Django, providing hooks to integrate Sharrock into a django app.
 *	A Python *RPC Client* for Sharrock, making it easy to build client code against a Sharrock service by using the function descriptors.
 *   An optional *REST* layer that allows functions to be rolled up into resources, and a ResourceClient in Python that allows for RESTful interaction.
+*   An even more optional ResourceModel layer that binds the Resource functionality to a Django model.  See "Model Resources" below for more info.
 
 Requirements
 ------------
@@ -242,3 +243,32 @@ Sharrock supplies *sharrock.client.ResourceClient*, an HTTP client for REST-styl
 *   ResourceClient.delete(data=None,params=None,local_params_check=True)
 
 The HTTP methods all have the same signature: Either a JSON object may be posted as data, or key/value params (but not both) and a flag that indicates params should be checked on the client (setting it to False supresses this function).  If the resource descriptor does not define a method, the corresponding attribute will be None instead of a method.  All of the HTTP methods will return a deserialized response from the server.
+
+Model Resources
+===============
+A common case is to use the REST layer to directly manipulate Django models.  While many REST frameworks assume this is the center case, I have purposefully packaged it as an add-on to the core REST functionality, which is itself an add-on to the basic RPC functionality.  One could accomplish the same thing with a Resource implementation, so just think of this as a shortcut.
+
+Model Resources are easy to define:
+
+    from sharrock.modelresource import ModelResource
+    from myapp.models import MyModel
+
+    class MyModelResource(ModelResource):
+        """Resource for my model."""
+        model = MyModel
+
+That's about it.  Your model resources are defined in the same descriptors.py file where you would put any other descriptors or ressource definitions.  Model resources are mounted under the resource URL mount-point, the same as other resources.
+
+Model Resource Client
+---------------------
+Sharrock provides a special client for model resources,  sharrock.client.ModelResourceClient, to provide convenience methods for model CRUD operations.  Usage is very similar to the ResourceClient.
+
+*   ModelResourceClient.__init__(service_url,app,version,resource_slug)
+
+*   ModelResourceClient.list(): Lists all of the models
+*   ModelResourceClient.get(model_pk): Retrieves the model with the specified key.
+*   ModelResourceClient.create(**attrs): Creates a new model with the specified attributes.
+*   ModelResourceClient.update(model_pk,**attrs): Updates an existing model.
+*   ModelResourceClient.delete(model_pk): Deletes the specified model resource client.
+
+

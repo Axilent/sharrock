@@ -21,7 +21,6 @@ class PostMe(Descriptor):
     name = UnicodeParam('name',required=True,description='The name to post.')
 
     def execute(self,request,data,params):
-        print 'executing postme'
         posted_name = params['name']
         return 'Posted %s' % posted_name
 

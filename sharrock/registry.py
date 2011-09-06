@@ -49,6 +49,7 @@ def load_descriptors(app_path,descriptor_module):
     Loads descriptors in the module into the directory.
     """
     from sharrock.descriptors import Descriptor, Resource
+    from sharrock.modelresource import ModelResource
 
     version = '0.1dev' # default version
     if hasattr(descriptor_module,'version'):
@@ -58,7 +59,7 @@ def load_descriptors(app_path,descriptor_module):
         if inspect.isclass(attribute) and issubclass(attribute,Descriptor) and not attribute is Descriptor:
             if not hasattr(attribute,'visible') or attribute.visible: # skip over descriptors with visible=False set
                 descriptor_registry[(app_path,version,slugify(name))] = attribute() # put instance of the descriptor into the registry
-        elif inspect.isclass(attribute) and issubclass(attribute,Resource) and not attribute is Resource:
+        elif inspect.isclass(attribute) and issubclass(attribute,Resource) and not attribute is Resource and not attribute is ModelResource:
             descriptor_registry[(app_path,version,slugify(name))] = attribute() # put instance of resource into registry
     
 

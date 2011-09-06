@@ -400,3 +400,85 @@ class ResourceClient(object):
             if 'delete' in self._descriptor:
                 self.delete = ResourceOperation(self._service_url,self._app,self._version,self._resource_slug,self._descriptor['delete'],'DELETE',auth_user=self.user,auth_password=self.password)
     
+
+class ModelResourceClient(object):
+    """
+    A client for a model resource.
+    """
+    def __init__(self,service_url,app,version,model_resource_slug,auth_user='',auth_password=''):
+        self._service_url = service_url
+        self._app = app
+        self._version = version
+        self._model_resource_slug = model_resource_slug
+        self.user = auth_user
+        self.password = auth_password
+        self.http = httplib2.Http()
+    
+    def _auth(self):
+        """
+        Generations basic auth headers.
+        """
+        if self.user or self.password:
+            userpass = base64.b64encode('%s:%s' % (self.user,self.password))
+            return {'Authentication':'Basic %s' % userpass}
+        else:
+            return {}
+    
+    def _process_response(self,response,content):
+        """
+        Processes response from the server.
+        """
+        if response.status >= 400:
+            # error
+            raise ServiceException(response.status,content)
+        else:
+            if content:
+                return json.loads(content,strict=False)
+            else:
+                return None
+    
+    def _service(self,method,context,**attrs):
+        """
+        Http service implementation
+        """
+        response, content = None, None
+        headers = self._auth()
+        url = '%s/%s/%s/%s/%s.json' % (self._service_url,self._app,self._version,self._model_resource_slug,context)
+
+        if method == 'GET' or method == 'DELETE':
+            response, content = self.http.request(url,method=method,headers=headers)
+        else:
+            response, content = self.http.request(url,method=method,body=json.dumps(attrs),headers=headers)
+        
+        return self._process_response(response,content)
+    
+    def list(self):
+        """
+        Lists the model resources.
+        """
+        return self._service('GET','list')
+    
+    def get(self,pk):
+        """
+        Gets the model specified by the id.
+        """
+        return self._service('GET',pk)
+    
+    def create(self,**attrs):
+        """
+        Creates a new model with the specified data.
+        """
+        return self._service('POST','create',**attrs)
+    
+    def update(self,pk,**attrs):
+        """
+        Updates an existing model.
+        """
+        return self._service('PUT',pk,**attrs)
+    
+    def delete(self,pk):
+        """
+        Deletes an existing model.
+        """
+        return self._service('DELETE',pk)
+

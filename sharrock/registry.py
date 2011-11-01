@@ -79,6 +79,8 @@ def directory(app_label=None,specified_version=None):
     """
     Creates a directory of service descriptors.
     """
+    ensure_registry()
+    
     from sharrock.descriptors import Resource
     d = {}
     for key, value in descriptor_registry.items():
@@ -112,4 +114,11 @@ def resource_directory(app_label=None,specified_version=None):
             d[app] = app_dict
     
     return d
+
+def ensure_registry():
+    """
+    Loads descriptors if the repository is unpopulated.
+    """
+    if not descriptor_registry:
+        build_registry()
 

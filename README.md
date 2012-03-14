@@ -161,6 +161,8 @@ HttpClient.__init__
 *   *service_url*: The full URL to the server, including the API mount context. For example "http://example.com/api".
 *   *app*: The app to address, for example "myapp".
 *   *version*: The version of the API to use, for example "1.0".
+*	*auth_user=USERNAME*: Optional.  Will pass the username to basic auth.
+*	*auth_password=PASSWORD*: Optional. Will pass the password to basic auth.
 
 To use the HttpClient, simply execute method calls on it, with the slugified name of the function as the method name.  All methods take the optional keyword argument "data" for data objects to be serialized and uploaded, and treat other keyword arguments as params.
 
@@ -170,6 +172,20 @@ For example, taking the "HelloWorld" descriptor from above:
 
     c = HttpClient('http://example.com/api','myapp','1.0')
     c.helloworld(name='Loren')
+
+A Note About Basic Auth and the HttpClient
+------------------------------------------
+
+The HttpClient (and ResourceClient) will accept the keyword args `auth_user` and `auth_password` which they'll use in Basic Auth: concatenating them together, base64 encoding them and appending them to an `Authorization: Basic` header.
+
+When working with the Axilent platform, the API token is used as the `auth_user`, with no password being set.
+
+The same client example as above, but using basic auth:
+
+	from sharrock.client import HttpClient
+	
+	c = HttpClient('http://example.com/api','myapp','1.0',auth_user='Loren',auth_password='MYSEKRIT')
+	c.helloworld(name='Fred')
 
 Creating RESTful Services
 =========================
@@ -231,14 +247,16 @@ Resource Client
 ---------------
 Sharrock supplies *sharrock.client.ResourceClient*, an HTTP client for REST-style operations.  An instance of a ResourceClient represents a single resource, with the various HTTP method operations available for it.
 
-*   ResourceClient.__init__(service_url,app,version,resource_slug): Instantiates the client towards a single resource.
+*   `ResourceClient.__init__(service_url,app,version,resource_slug,auth_user='',auth_password='')`: Instantiates the client towards a single resource.
 
-*   ResourceClient.get(data=None,params=None,local_params_check=True)
-*   ResourceClient.post(data=None,params=None,local_params_check=True)
-*   ResourceClient.put(data=None,params=None,local_params_check=True)
-*   ResourceClient.delete(data=None,params=None,local_params_check=True)
+*   `ResourceClient.get(data=None,params=None,local_params_check=True)`
+*   `ResourceClient.post(data=None,params=None,local_params_check=True)`
+*   `ResourceClient.put(data=None,params=None,local_params_check=True)`
+*   `ResourceClient.delete(data=None,params=None,local_params_check=True)`
 
 The HTTP methods all have the same signature: Either a JSON object may be posted as data, or key/value params (but not both) and a flag that indicates params should be checked on the client (setting it to False supresses this function).  If the resource descriptor does not define a method, the corresponding attribute will be None instead of a method.  All of the HTTP methods will return a deserialized response from the server.
+
+Exactly like the HttpClient, the ResourceClient will append an `Authorization: Basic` header to requests if the `auth_user` or `auth_password` keyword args are set.
 
 Model Resources
 ===============

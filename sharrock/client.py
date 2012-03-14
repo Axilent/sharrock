@@ -122,6 +122,8 @@ class HttpService(object):
         self.http = httplib2.Http()
         self.user = auth_user
         self.password = auth_password
+        if self.user or self.password:
+            self.http.add_credentials(self.user,self.password)
     
     def check_params(self,params):
         """
@@ -133,11 +135,12 @@ class HttpService(object):
         """
         Generations basic auth headers.
         """
-        if self.user or self.password:
-            userpass = base64.b64encode('%s:%s' % (self.user,self.password))
-            return {'Authentication':'Basic %s' % userpass}
-        else:
-            return {}
+        return {}
+        # if self.user or self.password:
+        #     userpass = base64.b64encode('%s:%s' % (self.user,self.password))
+        #     return {'Authentication':'Basic %s' % userpass}
+        # else:
+        #     return {}
     
     def process_response(self,response,content):
         """

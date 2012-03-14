@@ -7,10 +7,6 @@ The central idea of Sharrock is the *descriptor*, a declarative model that both 
 
 Following the tradition of naming Django projects after Jazz musicians, Sharrock is named after [Sonny Sharrock](http://en.wikipedia.org/wiki/Sonny_Sharrock "Sonny Sharrock Wikipedia page").
 
-NOTE: UGLY EARLY
-----------------
-*Sharrock is in extremely early stages and might be completely broken.  Seriously, use at your own risk.  We'll take down this notice when we feel it's semi-stable.*
-
 
 Basic Parts
 -----------

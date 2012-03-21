@@ -452,3 +452,12 @@ class Resource(object):
         """
         return Resource.response_codes[request.method.lower()]
     
+# =======================
+# = Miscellaneous Erros =
+# =======================
+
+class Conflict(Exception):
+    """
+    An exception indicating there is a user-resolvable problem with the function or resource being addressed.
+    Should contain enough information so that the user can resolve the problem.
+    """

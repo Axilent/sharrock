@@ -2,7 +2,7 @@
 View functions for Sharrock.
 """
 from sharrock import registry
-from sharrock.descriptors import ParamRequired, MethodNotAllowed, AccessDenied
+from sharrock.descriptors import ParamRequired, MethodNotAllowed, AccessDenied, Conflict
 from django.shortcuts import render_to_response
 from django.http import Http404, HttpResponse
 import traceback
@@ -62,6 +62,8 @@ def execute_service(request,app,version,service_name,extension='json'):
         return HttpResponse(str(ad),status=403)
     except ParamRequired as pr:
         return HttpResponse(str(pr),status=400) # missing parameter
+    except Conflict as con:
+        return HttpResponse(str(con),status=409) # something user-resolvable is wrong with the function
 
 def execute_resource(request,app,version,resource_name,extension='json',model_id=None):
     """
@@ -85,6 +87,8 @@ def execute_resource(request,app,version,resource_name,extension='json',model_id
         return HttpResponse(str(pr),status=400) # there is a missing required parameter
     except MethodNotAllowed as mna:
         return HttpResponse(str(mna),status=405) # the employed http method is not supported
+    except Conflict as con:
+        return HttpResponse(str(cont),status=409) # something user-resolvable is wrong with the resource
     except Exception as e:
         traceback.print_exc()
         raise e

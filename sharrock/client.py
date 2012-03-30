@@ -329,7 +329,7 @@ class ResourceOperation(object):
         """
         if self.user or self.password:
             userpass = base64.b64encode('%s:%s' % (self.user,self.password))
-            return {'Authentication':'Basic %s' % userpass}
+            return {'Authorization':'Basic %s' % userpass}
         else:
             return {}
     
@@ -420,7 +420,7 @@ class ModelResourceClient(object):
         """
         if self.user or self.password:
             userpass = base64.b64encode('%s:%s' % (self.user,self.password))
-            return {'Authentication':'Basic %s' % userpass}
+            return {'Authorization':'Basic %s' % userpass}
         else:
             return {}
     

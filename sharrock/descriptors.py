@@ -256,7 +256,7 @@ class DescriptorMetaclass(type):
                 new_attrs['security'] = SecurityCheck()
             
             # If data parsing flag has not been set, set to False
-            if not 'data_parsing':
+            if not 'data_parsing' in attrs:
                 new_attrs['data_parsing'] = False
             
             attrs.update(new_attrs)

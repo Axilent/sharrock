@@ -111,21 +111,19 @@ class DictParam(Param):
     """
     A param with a dictionary of values.
     """
-    def __init__(self,param_dict,**kwargs):
-        super(DictParam,self).__init__(**kwargs)
+    def __init__(self,name,params=param_dict,**kwargs):
+        super(DictParam,self).__init__(name,**kwargs)
         self.param_dict = param_dict
     
     def process(self,raw):
-        return_dict = {}
-        for param_key, param in self.param_dict.items():
-            raw_value = None
-            try:
-                raw_value = raw[param_key]
-            except KeyError:
-                pass
-            return_dict[param_key] = param.get(param_key,raw_value)
-        
-        return return_dict
+        if not self.param_dict:
+            # if no params have been defined, treat as a wildcard dictionary - any key/value pairs are acceptable
+            return raw.copy()
+        else:
+            return_dict = {}
+            for param_key, param in self.param_dict.items():
+                return_dict[param_key] = param.get_from_dict(raw)
+            return return_dict
     
     @property
     def type(self):

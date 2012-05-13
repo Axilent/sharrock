@@ -111,9 +111,9 @@ class DictParam(Param):
     """
     A param with a dictionary of values.
     """
-    def __init__(self,name,params=param_dict,**kwargs):
+    def __init__(self,name,params={},**kwargs):
         super(DictParam,self).__init__(name,**kwargs)
-        self.param_dict = param_dict
+        self.param_dict = params.copy() # always copy mutable arguments
     
     def process(self,raw):
         if not self.param_dict:

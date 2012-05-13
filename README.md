@@ -81,6 +81,7 @@ Any value the execute method returns should be something that can be serialized 
 
 Parameters
 ----------
+
 All parameters can be imported from *sharrock.descriptors*.  There are several types of parameters available, each parameter type will attempt to cast incoming values to whatever is its preferred data type.  Incoming values that cannot be cast to the data type will raise an exception.  Parameter types include:
 
 *   UnicodeParam
@@ -94,6 +95,11 @@ Parameters must be instantiated with the first argument being the name of the pa
 *   *required*: If True, this parameter is required.  False by default.  If a call is made on the function and a required parameter is missing, a ParamRequired exception will be raised.
 *   *default*: The default value for the parameter, if it is not specified.  Only makes sense for non-required parameters.
 *   *description*: The description of the parameter, to be used in the automatically generated documentation.
+
+Data Parsing
+------------
+
+For descriptors meant to post serialized data (JSON, XML etc) instead of keyword arguments, set the `data_parsing` flag to `True` for the descriptor.  This will alert Sharrock to apply the parameters to the deserialized data, and not keyward arguments.  Obviously if you have required parameters for a descriptor set to data parsing and you post query parameters to it, it will fail with a ParamRequired exception.
 
 Descriptor Docstrings
 ---------------------

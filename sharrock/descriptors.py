@@ -255,6 +255,10 @@ class DescriptorMetaclass(type):
             if not 'security' in attrs:
                 new_attrs['security'] = SecurityCheck()
             
+            # If data parsing flag has not been set, set to False
+            if not 'data_parsing':
+                new_attrs['data_parsing'] = False
+            
             attrs.update(new_attrs)
         
         return type.__new__(cls,name,bases,attrs)
@@ -309,7 +313,7 @@ class Descriptor(object):
         Attempts to extract keyword args from the raw data.  Returns None
         if no kwargs are to be had.
         """
-        if not self.params:
+        if self.data_parsing or not self.params: # data parsing descriptors ignore keyword args
             return {} # no params means no keyword args
 
         if request.GET:
@@ -337,7 +341,10 @@ class Descriptor(object):
         # 4. Process params
         param_data = {}
         for param in self.params:
-            param_data[param.name] = param.get_from_dict(kwargs)
+            if self.data_parsing:
+                param_data[param.name] = param.get_from_dict(data) # extract params from data
+            else:
+                param_data[param.name] = param.get_from_dict(kwargs) # extract params from kwargs
 
         # 5. Execute service
         result = self.execute(request,data,param_data)

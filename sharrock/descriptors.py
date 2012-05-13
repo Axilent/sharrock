@@ -332,6 +332,7 @@ class Descriptor(object):
 
         # 2. Deserialize incoming data
         data = self.deserialize(request.raw_post_data,format)
+        data = data or {} # set to empty dictionary if serializer returned nothing
 
         # 3. Get kwargs
         kwargs = self.extract_kwargs(request)

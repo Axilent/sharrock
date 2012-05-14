@@ -64,10 +64,12 @@ class ParamValidator(object):
         unicode(value)
     
     def integer_check(self,value):
-        int(value)
+        if not value is None:
+            int(value)
     
     def float_check(self,value):
-        float(value)
+        if not value is None:
+            float(value)
     
     def list_check(self,value):
         if not hasattr(value,'__iter__'):

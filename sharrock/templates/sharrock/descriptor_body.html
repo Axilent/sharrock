@@ -2,7 +2,7 @@
 <h3>{{ descriptor.service_name }}</h3>
 <h4>{{ api_root }}/{{ app }}/{{ version }}/{{ descriptor.slug }}</h4>
 {% if descriptor.is_deprecated %}
-<h4>DEPRECATED</h4>
+<h4>DEPRECATED: {{ descriptor.is_deprecated }}</h4>
 {% endif %}
 {% endif %}
 {% if descriptor.data_parsing %}

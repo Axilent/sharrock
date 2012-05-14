@@ -1,7 +1,7 @@
 <h2>{{ resource.name }}</h2>
 <h4>{{ resource_root }}/{{ app }}/{{ version }}/{{ resource.slug }}</h4>
 {% if resource.is_deprecated %}
-<h4>DEPRECATED</h4>
+<h4>DEPRECATED: {{ resource.is_deprecated }}</h4>
 {% endif %}
 {% if resource.get %}
 <h3>GET</h3>

@@ -66,7 +66,7 @@ def execute_service(request,app,version,service_name,extension='json'):
         response = HttpResponse(serialized_result,get_response_mimetype(extension))
         if service.is_deprecated:
             # set warning header
-            response['Warning'] = 'METHOD DEPRECATED: Please check API documentation.'
+            response['Warning'] = 'METHOD DEPRECATED: %s' % service.is_deprecated
         return response
     except KeyError:
         raise Http404

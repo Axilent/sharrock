@@ -257,9 +257,9 @@ class DescriptorMetaclass(type):
             if not 'data_parsing' in attrs:
                 new_attrs['data_parsing'] = False
             
-            # Deprecated flag
+            # Deprecated message
             if not 'deprecated' in attrs:
-                new_attrs['deprecated'] = False
+                new_attrs['deprecated'] = None
             
             attrs.update(new_attrs)
         
@@ -280,7 +280,7 @@ class Descriptor(object):
 
     __metaclass__ = DescriptorMetaclass # class factory mounts here
     
-    def __init__(self,is_deprecated=False):
+    def __init__(self,is_deprecated=None):
         """
         Constructor.  is_deprecated flag indicates if this is a deprecated API, either through
         declaration in the local class, or as inherited from a parent entity.
@@ -288,7 +288,7 @@ class Descriptor(object):
         self.is_deprecated = is_deprecated # deprecation from parent entity
         
         if self.deprecated:
-            self.is_deprecated = True # deprecation occuring at local class level
+            self.is_deprecated = self.deprecated # deprecation occuring at local class level
     
     def serialize(self,python_object,format):
         """
@@ -408,7 +408,7 @@ class Resource(object):
     response_codes = {'get':200,'post':201,'delete':200,'put':200}
     headers = {'json':{'Content-type':'application/json'},'xml':{'Content-type':'application/xml'}}
     
-    def __init__(self,is_deprecated=False):
+    def __init__(self,is_deprecated=None):
         """
         Constructor, set deprecation on member methods.
         """
@@ -420,7 +420,7 @@ class Resource(object):
         if deprecation: # deprecation from parent entity or local declaration
             for method_name in response_codes.keys():
                 if hasattr(self,method_name):
-                    getattr(self,method_name).is_deprecated = True
+                    getattr(self,method_name).is_deprecated = deprecation
 
     @property
     def name(self):

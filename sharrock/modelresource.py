@@ -38,7 +38,7 @@ class ModelResource(Resource):
     """
     A resource tied to a Django model.
     """
-    def __init__(self,is_deprecated=False):
+    def __init__(self,is_deprecated=None):
         self.get = ModelResourceAction('Retrieves or lists',self.do_get)
         self.post = ModelResourceAction('Creates',self.do_post)
         self.put = ModelResourceAction('Updates',self.do_put)

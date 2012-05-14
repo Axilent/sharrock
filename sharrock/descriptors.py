@@ -412,15 +412,15 @@ class Resource(object):
         """
         Constructor, set deprecation on member methods.
         """
-        deprecation = is_deprecated
-        if not deprecation:
+        self.is_deprecated = is_deprecated
+        if not self.is_deprecated:
             if hasattr(self,'deprecated'):
-                deprecation = self.deprecated
+                self.is_deprecated = self.deprecated
         
-        if deprecation: # deprecation from parent entity or local declaration
+        if self.is_deprecated: # deprecation from parent entity or local declaration
             for method_name in self.response_codes.keys():
                 if hasattr(self,method_name):
-                    getattr(self,method_name).is_deprecated = deprecation
+                    getattr(self,method_name).is_deprecated = self.is_deprecated
 
     @property
     def name(self):

@@ -5,6 +5,7 @@ from sharrock import registry
 from sharrock.descriptors import ParamRequired, MethodNotAllowed, AccessDenied, Conflict
 from django.shortcuts import render_to_response
 from django.http import Http404, HttpResponse
+from django.conf import settings
 import traceback
 
 def check_extension(extension):
@@ -12,6 +13,14 @@ def check_extension(extension):
         raise Http404
 
 mtype_map = {'html':'text/html','xml':'application/xml','json':'application/json'}
+
+api_root = '...'
+if hasattr(settings,'SHARROCK_API_ROOT'):
+    api_root = settings.SHARROCK_API_ROOT
+
+resource_root = '...'
+if hasattr(settings,'SHARROCK_RESOURCE_ROOT'):
+    resource_root = settings.SHARROCK_RESOURCE_ROOT
 
 def get_response_mimetype(extension):
     """
@@ -26,7 +35,7 @@ def directory(request,app=None,version=None,extension='html'):
     check_extension(extension)
 
     descriptors = registry.directory(app_label=app,specified_version=version)
-    return render_to_response('sharrock/directory.%s' % extension,{'descriptors':descriptors})
+    return render_to_response('sharrock/directory.%s' % extension,{'descriptors':descriptors,'api_root':api_root,'resource_root':resource_root})
 
 
 def describe_service(request,app,version,service_name,extension='html',service_type='function'):
@@ -38,10 +47,10 @@ def describe_service(request,app,version,service_name,extension='html',service_t
     try:
         if service_type == 'resource':
             return render_to_response('sharrock/resource.%s' % extension,
-                                      {'resource':registry.get_descriptor(app,version,service_name)})
+                                      {'resource':registry.get_descriptor(app,version,service_name),'api_root':api_root,'resource_root':resource_root})
         else:
             return render_to_response('sharrock/descriptor.%s' % extension,
-                                      {'descriptor':registry.get_descriptor(app,version,service_name)})
+                                      {'descriptor':registry.get_descriptor(app,version,service_name),'api_root':api_root,'resource_root':resource_root})
     except KeyError:
         raise Http404
 

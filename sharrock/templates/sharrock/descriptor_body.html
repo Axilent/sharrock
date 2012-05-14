@@ -1,6 +1,6 @@
 {% if not resource %}
 <h3>{{ descriptor.service_name }}</h3>
-<h4>.../{{ app }}/{{ version }}/{{ descriptor.slug }}</h4>
+<h4>{{{ api_root }}}/{{ app }}/{{ version }}/{{ descriptor.slug }}</h4>
 {% endif %}
 {% if descriptor.data_parsing %}
 <p><em>This is a data parsing function.  Params must be posted as serialized data.</em></p>

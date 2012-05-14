@@ -1,5 +1,5 @@
 <h2>{{ resource.name }}</h2>
-<h4>{{ resource.slug }}</h4>
+<h4>{{ resource_root }}/{{ app }}/{{ version }}/{{ resource.slug }}</h4>
 {% if resource.get %}
 <h3>GET</h3>
 {% with resource.get as descriptor %}

@@ -154,6 +154,13 @@ or
     /api/describe/myapp/1.0/myfunction.json
     /api/describe/myapp/1.0/myfunction.xml
 
+The API docs will show the full path to the function or resource call.  You can set the root of the URL with the `SHARROCK_API_ROOT` and `SHARROCK_RESOURCE_ROOT` settings, respectively.  This should match up to your domain URL and the mount point you used in your views.  So for example:
+
+	SHARROCK_API_ROOT = 'https://www.example.com/api'
+	SHARROCK_RESOURCE_ROOT = 'https://www.example.com/api/resource'
+
+If no roots are set, the API docs will display ellipsis ("...") in place of the roots.
+
 HttpClient
 ==========
 

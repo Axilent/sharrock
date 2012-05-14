@@ -103,7 +103,15 @@ For descriptors meant to post serialized data (JSON, XML etc) instead of keyword
 
 Descriptor Docstrings
 ---------------------
+
 The documentation system will automatically create documentation based on the descriptor docstring.  It will read documentation in Markdown format and format it appropriately from that.
+
+Deprecating Descriptors
+-----------------------
+
+You can deprecate descriptors by setting `deprecated = True` in the descriptor declaration.  The descriptor will be marked as deprecated in the API documentation, and when it is called, the server will execute the function as normal, but attach a Warning http response header with the message "METHOD DEPRECATED: Please check API documentation.".
+
+The deprecation flag (`deprecated = True`) may be declared in any of three places: at the descriptor level itself, in a Resource declaration or at the module level.  Deprecation is inherited, so if you declare an entire module to be deprecated, every Descriptor or Resource in that module will likewise be deprecated.
 
 API Versions
 ============

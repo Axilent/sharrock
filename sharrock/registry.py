@@ -54,11 +54,16 @@ def load_descriptors(app_path,descriptor_module):
     version = '0.1dev' # default version
     if hasattr(descriptor_module,'version'):
         version = getattr(descriptor_module,'version')
+    
+    module_deprecated = False
+    if hasattr(descriptor_module,'deprecated'):
+        # entire module is deprecated
+        module_deprecated = True
 
     for name,attribute in inspect.getmembers(descriptor_module):
         if inspect.isclass(attribute) and issubclass(attribute,Descriptor) and not attribute is Descriptor:
             if not hasattr(attribute,'visible') or attribute.visible: # skip over descriptors with visible=False set
-                descriptor_registry[(app_path,version,slugify(name))] = attribute() # put instance of the descriptor into the registry
+                descriptor_registry[(app_path,version,slugify(name))] = attribute(is_deprecated=module_deprecated) # put instance of the descriptor into the registry
         elif inspect.isclass(attribute) and issubclass(attribute,Resource) and not attribute is Resource and not attribute is ModelResource:
             descriptor_registry[(app_path,version,slugify(name))] = attribute() # put instance of resource into registry
     

@@ -64,6 +64,9 @@ def execute_service(request,app,version,service_name,extension='json'):
         service = registry.get_descriptor(app,version,service_name)
         serialized_result = service.http_service(request,format=extension)
         response = HttpResponse(serialized_result,get_response_mimetype(extension))
+        if service.is_deprecated:
+            # set warning header
+            response['Warning'] = 'METHOD DEPRECATED: Please check API documentation.'
         return response
     except KeyError:
         raise Http404

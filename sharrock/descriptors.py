@@ -418,7 +418,7 @@ class Resource(object):
                 deprecation = self.deprecated
         
         if deprecation: # deprecation from parent entity or local declaration
-            for method_name in response_codes.keys():
+            for method_name in self.response_codes.keys():
                 if hasattr(self,method_name):
                     getattr(self,method_name).is_deprecated = deprecation
 

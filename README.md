@@ -109,9 +109,13 @@ The documentation system will automatically create documentation based on the de
 Deprecating Descriptors
 -----------------------
 
-You can deprecate descriptors by setting `deprecated = True` in the descriptor declaration.  The descriptor will be marked as deprecated in the API documentation, and when it is called, the server will execute the function as normal, but attach a Warning http response header with the message "METHOD DEPRECATED: Please check API documentation.".
+You can deprecate descriptors by settings a deprecation message at the individual descriptor, at the resource or at the module level.  Setting the deprecation message looks like this:
 
-The deprecation flag (`deprecated = True`) may be declared in any of three places: at the descriptor level itself, in a Resource declaration or at the module level.  Deprecation is inherited, so if you declare an entire module to be deprecated, every Descriptor or Resource in that module will likewise be deprecated.
+	deprecated = 'You should stop using this function.'
+	
+The descriptor will be shown as deprecated in the API docs.  Additionally, when it is called, the server will append a **Warning** response header to the response with a message indicating that the function is deprecated.
+
+Deprecation is inherited, so if a module is marked as depreated then all resources and descriptors within that module will be deprecated.  Likewise if a resource is marked deprecated then all of its member descriptors will be deprecated.
 
 API Versions
 ============

@@ -440,25 +440,9 @@ class Resource(object):
         # Get action method
         action_method_name = request.method.lower()
         action_method = getattr(self,action_method_name)
-
-        # Get kwargs
-        kwargs = action_method.extract_kwargs(request)
-
-        # Process params or data
-        param_data = {}
-        data = None
-        for param in action_method.params:
-            param_data[param.name] = param.get_from_dict(kwargs)
         
-        if not kwargs:
-            # Deserialize incoming data
-            data = action_method.deserialize(request.raw_post_data,format)
-        
-        # Execute service
-        result = action_method.execute(request,data,param_data)
-
-        # Serialize result
-        serialized_result = action_method.serialize(result,format)
+        # Action method executes http service
+        serialized_result = action_method.http_service(request,format=format)
 
         # response headers and status
         response_headers = self.response_headers(request,format)

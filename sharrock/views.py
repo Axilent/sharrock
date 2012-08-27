@@ -6,7 +6,9 @@ from sharrock.descriptors import ParamRequired, MethodNotAllowed, AccessDenied, 
 from django.shortcuts import render_to_response
 from django.http import Http404, HttpResponse
 from django.conf import settings
-import traceback
+import logging
+
+log = logging.getLogger('sharrock')
 
 def check_extension(extension):
     if not extension in ['html','xml','json']:
@@ -76,6 +78,9 @@ def execute_service(request,app,version,service_name,extension='json'):
         return HttpResponse(str(pr),status=400) # missing parameter
     except Conflict as con:
         return HttpResponse(str(con),status=409) # something user-resolvable is wrong with the function
+    except Exception as e:
+        log.exception('Exception while accessing function %s.' % service_name)
+        raise e
 
 def execute_resource(request,app,version,resource_name,extension='json',model_id=None):
     """
@@ -102,7 +107,7 @@ def execute_resource(request,app,version,resource_name,extension='json',model_id
     except Conflict as con:
         return HttpResponse(str(con),status=409) # something user-resolvable is wrong with the resource
     except Exception as e:
-        traceback.print_exc()
+        log.exception('Exception while accessing resource %s.' % resource_name)
         raise e
 
 def resource_directory(request,app=None,version=None,extension='html'):

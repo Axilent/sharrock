@@ -78,7 +78,7 @@ def execute_service(request,app,version,service_name,extension='json'):
         return HttpResponse(str(pr),status=400) # missing parameter
     except Conflict as con:
         return HttpResponse(str(con),status=409) # something user-resolvable is wrong with the function
-    except Exception as e:
+    except BaseException as e:
         log.exception('Exception while accessing function %s.' % service_name)
         raise e
 
@@ -106,7 +106,7 @@ def execute_resource(request,app,version,resource_name,extension='json',model_id
         return HttpResponse(str(mna),status=405) # the employed http method is not supported
     except Conflict as con:
         return HttpResponse(str(con),status=409) # something user-resolvable is wrong with the resource
-    except Exception as e:
+    except BaseException as e:
         log.exception('Exception while accessing resource %s.' % resource_name)
         raise e
 

@@ -271,11 +271,11 @@ class HttpClient(object):
             self.parent = parent
             self.service_name = service_name
         
-        def __call__(self,data=None,**kwargs):
+        def __call__(self,data=None,local_param_check=True,**kwargs):
             """
             Call hook for the service method.
             """
-            return self.parent.call(self.service_name,data=data,params=kwargs)
+            return self.parent.call(self.service_name,data=data,params=kwargs,local_param_check=local_param_check)
 
 ######################
 ### RESTful Client ###

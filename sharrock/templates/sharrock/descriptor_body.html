@@ -1,5 +1,5 @@
 {% if not resource %}
-<a name="{{ descriptor.service_name|slugify }}"><h3>{{ descriptor.service_name }}</h3></a>
+<a name="{{ descriptor.service_name|slugify }}"><h3>{{ descriptor.service_name }}</h3></a><span class="tiny"><a href="#">Back to Top</a></span>
 <h4>{{ api_root }}/{{ app }}/{{ version }}/{{ descriptor.slug }}/</h4>
 {% if descriptor.is_deprecated %}
 <h4>DEPRECATED: {{ descriptor.is_deprecated }}</h4>

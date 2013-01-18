@@ -4,6 +4,34 @@
 		{% include 'sharrock/style.html' %}
 	</head>
 	<body>
+		<div class="toc">
+			<ul>
+				{% for app,versions in descriptors.items %}
+				<li>
+					{{ app }}
+					<ul>
+						{% for version,services in versions.items %}
+						<li>
+							{{ version }}
+							<ul>
+								{% if services.resources %}
+								{% for resource in services.resources %}
+								<li>{{ resource }}</li>
+								{% endfor %}
+								{% endif %}
+								{% if services.functions %}
+								{% for descriptor in services.functions %}
+								<li>{{ descriptor }}</li>
+								{% endfor %}
+								{% endif %}
+							</ul>
+						</li>
+						{% endfor %}
+					</ul>
+				</li>
+				{% endfor %}
+			</ul>
+		</div>
 		{% for app,versions in descriptors.items %}
 		<h1>{{ app }}</h1>
 		{% for version,services in versions.items %}

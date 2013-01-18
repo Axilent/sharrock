@@ -9,11 +9,11 @@
 			<ul>
 				{% for app,versions in descriptors.items %}
 				<li>
-					{{ app }}
+					<h4>{{ app }}</h4>
 					<ul>
 						{% for version,services in versions.items %}
 						<li>
-							{{ version }}
+							<h4>{{ version }}</h4>
 							<ul>
 								{% if services.resources %}
 								{% for resource in services.resources %}

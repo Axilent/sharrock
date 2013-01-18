@@ -1,4 +1,4 @@
-<h2>{{ resource.name }}</h2>
+<a name="{{ resource.name|slugify }}"><h2>{{ resource.name }}</h2></a>
 <h4>{{ resource_root }}/{{ app }}/{{ version }}/{{ resource.slug }}/</h4>
 {% if resource.is_deprecated %}
 <h4>DEPRECATED: {{ resource.is_deprecated }}</h4>

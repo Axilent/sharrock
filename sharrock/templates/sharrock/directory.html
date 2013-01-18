@@ -17,12 +17,12 @@
 							<ul>
 								{% if services.resources %}
 								{% for resource in services.resources %}
-								<li>{{ resource.name }} (resource)</li>
+								<li><a href="#{{ resource.name|slugify }}">{{ resource.name }} (resource)</a></li>
 								{% endfor %}
 								{% endif %}
 								{% if services.functions %}
 								{% for descriptor in services.functions %}
-								<li>{{ descriptor.service_name }}</li>
+								<li><a href="#{{ descriptor.service_name|slugify }}">{{ descriptor.service_name }}</a></li>
 								{% endfor %}
 								{% endif %}
 							</ul>

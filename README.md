@@ -310,4 +310,6 @@ Sharrock provides a special client for model resources,  sharrock.client.ModelRe
 *   ModelResourceClient.update(model_pk,**attrs): Updates an existing model.
 *   ModelResourceClient.delete(model_pk): Deletes the specified model resource client.
 
+Note: Added Table of Contents capabilities.
+
 

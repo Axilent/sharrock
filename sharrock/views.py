@@ -70,8 +70,6 @@ def execute_service(request,app,version,service_name,extension='json'):
             # set warning header
             response['Warning'] = 'METHOD DEPRECATED: %s' % service.is_deprecated
         return response
-    except KeyError:
-        raise Http404
     except AccessDenied as ad:
         return HttpResponse(str(ad),status=403)
     except ParamRequired as pr:

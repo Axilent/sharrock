@@ -96,8 +96,8 @@ class ListParam(Param):
     """
     A param with a list of values.
     """
-    def __init__(self,item_param,**kwargs):
-        super(ListParam,self).__init__(**kwargs)
+    def __init__(self,name,item_param,**kwargs):
+        super(ListParam,self).__init__(name,**kwargs)
         self.item_param = item_param
     
     def process(self,raw):

@@ -2,10 +2,9 @@
 Automatic client for Sharrock.
 """
 import json
-import httplib2
 import urllib
 import base64
-
+import requests
 
 class ParamException(Exception):
     """
@@ -121,9 +120,8 @@ class HttpService(object):
             required = True if param['required'] == 'True' else False
             self.params[param['name']] = ParamValidator(param['name'],param['type'],required)
         
-        self.http = httplib2.Http()
-        self.http.add_credentials(auth_user,auth_password)
-        self.http.follow_all_redirects = True
+        self.user = auth_user
+        self.password = auth_password
     
     def check_params(self,params):
         """
@@ -131,33 +129,25 @@ class HttpService(object):
         """
         [validator.check(params) for validator in self.params.values()]
     
-    def process_response(self,response,content):
+    def process_response(self,response):
         """
         Processes response from the server.
         """
-        if response.status >= 400:
+        if response.status_code >= 400:
             # error
-            raise ServiceException(response.status,content)
+            raise ServiceException(response.status_code,response.text)
         else:
-            if content:
-                return json.loads(content,strict=False)
-            else:
-                return None
+            return response.json()
     
     def do_get(self,params):
         """
         Makes a get request.
         """
-        response, content = None, None
-        if params:
-            response, content = self.http.request('%s/%s?%s' % (self.service_url,
-                                                                self.descriptor['slug'],
-                                                                urllib.urlencode(params)),method='GET')
-        else:
-            response, content = self.http.request('%s/%s' % (self.service_url,
-                                                             self.descriptor['slug']),method='GET')
+        response = requests.get('%s/%s' % (self.service_url,self.descriptor['slug']),
+                                params=params,
+                                auth=(self.user,self.password))
         
-        return self.process_response(response,content)
+        return self.process_response(response)
     
     def do_post(self,data=None,params={}):
         """
@@ -165,28 +155,16 @@ class HttpService(object):
         otherwise params will be presented.  If both are defined an exception will
         be thrown.
         """
-        response, content = None, None
-        body = None
-
         if data and params:
             raise ValueError('Either data or params can be submitted to be the POST body, but not both.')
         
-        if data:
-            body = json.dumps(data)
-        elif params:
-            body = urllib.urlencode(params)
+        post_data = json.dumps(data) if data else params
         
-        if body:
-            response, content = self.http.request('%s/%s/' % (self.service_url,
-                                                             self.descriptor['slug']),
-                                                  method='POST',
-                                                  body=body)
-        else:
-            response, content = self.http.request('%s/%s/' % (self.service_url,
-                                                             self.descriptor['slug']),
-                                                  method='POST')
+        response = requests.post('%s/%s' % (self.service_url,self.descriptor['slug']),
+                                 data=post_data,
+                                 auth=(self.user,self.password))
         
-        return self.process_response(response,content)
+        return self.process_response(response)
     
     def call(self,data=None,params={},method='GET'):
         """
@@ -217,12 +195,11 @@ class HttpClient(object):
         Caches the specified descriptor locally.
         """
         if not descriptor_name in self._services or force:
-            http = httplib2.Http()
-            response, content = http.request('%s/describe/%s/%s/%s.json' % (self._service_url,self._app,self._version,descriptor_name),'GET')
+            response = requests.get('%s/describe/%s/%s/%s.json' % (self._service_url,self._app,self._version,descriptor_name))
             self._services[descriptor_name] = HttpService(self._service_url,
                                                           self._app,
                                                           self._version,
-                                                          json.loads(content,strict=False),
+                                                          response.json(),
                                                           auth_user=self.user,
                                                           auth_password=self.password)
     
@@ -282,9 +259,9 @@ class ResourceOperation(object):
         for param in self.descriptor['params']:
             required = True if param['required'] == 'True' else False
             self.params[param['name']] = ParamValidator(param['name'],param['type'],required)
-        self.http = httplib2.Http()
-        self.http.add_credentials(auth_user,auth_password)
-        self.http.follow_all_redirects = True
+        
+        self.user = auth_user
+        self.password = auth_password
     
     def check_params(self,params):
         """
@@ -292,18 +269,15 @@ class ResourceOperation(object):
         """
         [validator.check(params) for validator in self.params.values()]
     
-    def process_response(self,response,content):
+    def process_response(self,response):
         """
         Processes response from the server.
         """
-        if response.status >= 400:
+        if response.status_code >= 400:
             # error
-            raise ServiceException(response.status,content)
+            raise ServiceException(response.status_code,response.text)
         else:
-            if content:
-                return json.loads(content,strict=False)
-            else:
-                return None
+            return response.json()
     
     def _url(self):
         """
@@ -318,27 +292,24 @@ class ResourceOperation(object):
         # sanity check
         if data and params:
             raise ValueError('Either data or params can be submitted, but not both.')
-
-        response, content = None, None
-
+        
         if local_params_check:
             self.check_params(params)
-                
-        if self.http_method == 'GET' or self.http_method == 'DELETE':
-            if params:
-                response, content = self.http.request('%s?%s' % (self._url(),urllib.urlencode(params)),method=self.http_method)
-            else:
-                response, content = self.http.request(self._url(),method=self.http_method)
-        else:
-            if params:
-                response, content = self.http.request(self._url(),method=self.http_method,body=urllib.urlencode(params))
-            elif data:
-                response, content = self.http.request(self._url(),method=self.http_method,body=json.dumps(data))
-            else:
-                response, content = self.http.request(self._url(),method=self.http_method)
         
-        return self.process_response(response,content)
-
+        post_data = json.dumps(data) if data else params
+        
+        response = None
+        
+        if self.http_method == 'GET':
+            response = requests.get(self._url(),params=params,auth=(self.user,self.password))
+        elif self.http_method == 'DELETE':
+            response = requests.delete(self._url(),params=params,auth=(self.user,self.password))
+        elif self.http_method == 'POST':
+            response = requests.post(self._url(),data=post_data,auth=(self.user,self.password))
+        else:
+            response = requests.put(self._url(),data=post_data,auth=(self.user,self.password))
+        
+        return self.process_response(response)
 
 class ResourceClient(object):
     """
@@ -364,9 +335,9 @@ class ResourceClient(object):
         Locally caches the resource descriptor.
         """
         if not self._descriptor or force:
-            http = httplib2.Http()
-            response, content = http.request('%s/describe/%s/%s/%s.json' % (self._service_url,self._app,self._version,self._resource_slug),'GET')
-            self._descriptor = json.loads(content,strict=False)
+            response = requests.get('%s/describe/%s/%s/%s.json' % (self._service_url,self._app,self._version,self._resource_slug))
+            self._descriptor = response.json()
+
             if 'get' in self._descriptor:
                 self.get = ResourceOperation(self._service_url,self._app,self._version,self._resource_slug,self._descriptor['get'],'GET',auth_user=self.user,auth_password=self.password)
             if 'post' in self._descriptor:
@@ -375,7 +346,6 @@ class ResourceClient(object):
                 self.put = ResourceOperation(self._service_url,self._app,self._version,self._resource_slug,self._descriptor['put'],'PUT',auth_user=self.user,auth_password=self.password)
             if 'delete' in self._descriptor:
                 self.delete = ResourceOperation(self._service_url,self._app,self._version,self._resource_slug,self._descriptor['delete'],'DELETE',auth_user=self.user,auth_password=self.password)
-    
 
 class ModelResourceClient(object):
     """
@@ -386,36 +356,36 @@ class ModelResourceClient(object):
         self._app = app
         self._version = version
         self._model_resource_slug = model_resource_slug
-        self.http = httplib2.Http()
-        self.http.add_credentials(auth_user,auth_password)
-        self.http.follow_all_redirects = True
+        self.user = auth_user
+        self.password = auth_password
     
-    def _process_response(self,response,content):
+    def _process_response(self,response):
         """
         Processes response from the server.
         """
-        if response.status >= 400:
+        if response.status_code >= 400:
             # error
-            raise ServiceException(response.status,content)
+            raise ServiceException(response.status,response.text)
         else:
-            if content:
-                return json.loads(content,strict=False)
-            else:
-                return None
+            return response.json()
     
     def _service(self,method,context,**attrs):
         """
         Http service implementation
         """
-        response, content = None, None
+        response = None
         url = '%s/%s/%s/%s/%s.json' % (self._service_url,self._app,self._version,self._model_resource_slug,context)
-
-        if method == 'GET' or method == 'DELETE':
-            response, content = self.http.request(url,method=method)
-        else:
-            response, content = self.http.request(url,method=method,body=json.dumps(attrs))
         
-        return self._process_response(response,content)
+        if method == 'GET':
+            response = requests.get(url,auth=(self.user,self.password))
+        elif method == 'DELETE':
+            response = requests.delete(url,auth=(self.user,self.password))
+        elif method == 'POST':
+            response = requests.post(url,data=attrs,auth=(self.user,self.password))
+        else:
+            response = requests.put(url,data=attrs,auth=(self.user,self.password))
+        
+        return self._process_response(response)
     
     def list(self):
         """

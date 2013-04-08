@@ -122,24 +122,14 @@ class HttpService(object):
             self.params[param['name']] = ParamValidator(param['name'],param['type'],required)
         
         self.http = httplib2.Http()
-        self.user = auth_user
-        self.password = auth_password
+        self.http.add_credentials(auth_user,auth_password)
+        self.http.follow_all_redirects = True
     
     def check_params(self,params):
         """
         Checks the parameters.
         """
         [validator.check(params) for validator in self.params.values()]
-    
-    def _auth(self):
-        """
-        Generations basic auth headers.
-        """
-        if self.user or self.password:
-            userpass = base64.b64encode('%s:%s' % (self.user,self.password))
-            return {'Authorization':'Basic %s' % userpass}
-        else:
-            return {}
     
     def process_response(self,response,content):
         """
@@ -158,15 +148,14 @@ class HttpService(object):
         """
         Makes a get request.
         """
-        headers = self._auth()
         response, content = None, None
         if params:
             response, content = self.http.request('%s/%s?%s' % (self.service_url,
                                                                 self.descriptor['slug'],
-                                                                urllib.urlencode(params)),method='GET',headers=headers)
+                                                                urllib.urlencode(params)),method='GET')
         else:
             response, content = self.http.request('%s/%s' % (self.service_url,
-                                                             self.descriptor['slug']),method='GET',headers=headers)
+                                                             self.descriptor['slug']),method='GET')
         
         return self.process_response(response,content)
     
@@ -176,7 +165,6 @@ class HttpService(object):
         otherwise params will be presented.  If both are defined an exception will
         be thrown.
         """
-        headers = self._auth()
         response, content = None, None
         body = None
 
@@ -192,13 +180,11 @@ class HttpService(object):
             response, content = self.http.request('%s/%s/' % (self.service_url,
                                                              self.descriptor['slug']),
                                                   method='POST',
-                                                  body=body,
-                                                  headers=headers)
+                                                  body=body)
         else:
             response, content = self.http.request('%s/%s/' % (self.service_url,
                                                              self.descriptor['slug']),
-                                                  method='POST',
-                                                  headers=headers)
+                                                  method='POST')
         
         return self.process_response(response,content)
     
@@ -293,12 +279,12 @@ class ResourceOperation(object):
         self.descriptor = descriptor
         self.http_method = http_method
         self.params = {}
-        self.user = auth_user
-        self.password = auth_password
         for param in self.descriptor['params']:
             required = True if param['required'] == 'True' else False
             self.params[param['name']] = ParamValidator(param['name'],param['type'],required)
         self.http = httplib2.Http()
+        self.http.add_credentials(auth_user,auth_password)
+        self.http.follow_all_redirects = True
     
     def check_params(self,params):
         """
@@ -325,16 +311,6 @@ class ResourceOperation(object):
         """
         return '%s/%s/%s/%s.json' % (self.service_url,self.app,self.version,self.resource_slug)
     
-    def _auth(self):
-        """
-        Generations basic auth headers.
-        """
-        if self.user or self.password:
-            userpass = base64.b64encode('%s:%s' % (self.user,self.password))
-            return {'Authorization':'Basic %s' % userpass}
-        else:
-            return {}
-    
     def __call__(self,data=None,params=None,local_params_check=True):
         """
         Calls the http method.
@@ -347,21 +323,19 @@ class ResourceOperation(object):
 
         if local_params_check:
             self.check_params(params)
-        
-        headers = self._auth()
-        
+                
         if self.http_method == 'GET' or self.http_method == 'DELETE':
             if params:
-                response, content = self.http.request('%s?%s' % (self._url(),urllib.urlencode(params)),method=self.http_method,headers=headers)
+                response, content = self.http.request('%s?%s' % (self._url(),urllib.urlencode(params)),method=self.http_method)
             else:
-                response, content = self.http.request(self._url(),method=self.http_method,headers=headers)
+                response, content = self.http.request(self._url(),method=self.http_method)
         else:
             if params:
-                response, content = self.http.request(self._url(),method=self.http_method,body=urllib.urlencode(params),headers=headers)
+                response, content = self.http.request(self._url(),method=self.http_method,body=urllib.urlencode(params))
             elif data:
-                response, content = self.http.request(self._url(),method=self.http_method,body=json.dumps(data),headers=headers)
+                response, content = self.http.request(self._url(),method=self.http_method,body=json.dumps(data))
             else:
-                response, content = self.http.request(self._url(),method=self.http_method,headers=headers)
+                response, content = self.http.request(self._url(),method=self.http_method)
         
         return self.process_response(response,content)
 
@@ -412,19 +386,9 @@ class ModelResourceClient(object):
         self._app = app
         self._version = version
         self._model_resource_slug = model_resource_slug
-        self.user = auth_user
-        self.password = auth_password
         self.http = httplib2.Http()
-    
-    def _auth(self):
-        """
-        Generations basic auth headers.
-        """
-        if self.user or self.password:
-            userpass = base64.b64encode('%s:%s' % (self.user,self.password))
-            return {'Authorization':'Basic %s' % userpass}
-        else:
-            return {}
+        self.http.add_credentials(auth_user,auth_password)
+        self.http.follow_all_redirects = True
     
     def _process_response(self,response,content):
         """
@@ -444,13 +408,12 @@ class ModelResourceClient(object):
         Http service implementation
         """
         response, content = None, None
-        headers = self._auth()
         url = '%s/%s/%s/%s/%s.json' % (self._service_url,self._app,self._version,self._model_resource_slug,context)
 
         if method == 'GET' or method == 'DELETE':
-            response, content = self.http.request(url,method=method,headers=headers)
+            response, content = self.http.request(url,method=method)
         else:
-            response, content = self.http.request(url,method=method,body=json.dumps(attrs),headers=headers)
+            response, content = self.http.request(url,method=method,body=json.dumps(attrs))
         
         return self._process_response(response,content)
     

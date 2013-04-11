@@ -137,7 +137,7 @@ class HttpService(object):
             # error
             raise ServiceException(response.status_code,response.text)
         else:
-            return response.json()
+            return response.json(strict=False)
     
     def do_get(self,params):
         """
@@ -199,7 +199,7 @@ class HttpClient(object):
             self._services[descriptor_name] = HttpService(self._service_url,
                                                           self._app,
                                                           self._version,
-                                                          response.json(),
+                                                          response.json(strict=False),
                                                           auth_user=self.user,
                                                           auth_password=self.password)
     
@@ -277,7 +277,7 @@ class ResourceOperation(object):
             # error
             raise ServiceException(response.status_code,response.text)
         else:
-            return response.json()
+            return response.json(strict=False)
     
     def _url(self):
         """
@@ -336,7 +336,7 @@ class ResourceClient(object):
         """
         if not self._descriptor or force:
             response = requests.get('%s/describe/%s/%s/%s.json' % (self._service_url,self._app,self._version,self._resource_slug))
-            self._descriptor = response.json()
+            self._descriptor = response.json(strict=False)
 
             if 'get' in self._descriptor:
                 self.get = ResourceOperation(self._service_url,self._app,self._version,self._resource_slug,self._descriptor['get'],'GET',auth_user=self.user,auth_password=self.password)
@@ -367,7 +367,7 @@ class ModelResourceClient(object):
             # error
             raise ServiceException(response.status,response.text)
         else:
-            return response.json()
+            return response.json(strict=False)
     
     def _service(self,method,context,**attrs):
         """

@@ -7,3 +7,4 @@ settings.py
 data.db
 .DS_Store
 Sharrock.egg-info
+dist/*

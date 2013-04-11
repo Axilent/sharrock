@@ -26,7 +26,7 @@ Requirements
 Sharrock requires the following libraries:
 
 *   *[Django](http://www.djangoproject.com)* 1.2 or above
-*   *[httplib2](http://code.google.com/p/httplib2/)* For the client libs. **NOTE: Version 0.7.4 ONLY.  There is a change in the latest release of httplib2 (0.7.5) relating to HTTP_AUTHORIZATION headers that breaks Sharrock.**
+*   *[requests](http://docs.python-requests.org/en/latest/)* For the client libs.
 *   *[Markdown](http://www.freewisdom.org/projects/python-markdown/)* for docstring parsing.
 
 Installation

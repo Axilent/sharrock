@@ -12,7 +12,6 @@ setup(
     description='Python remote procedure call framework with server and client components.  RESTful when you need it to be.',
     packages=['sharrock'],
     license='BSD',
-    long_description=open('description.rst').read(),
     author='Loren Davie',
     author_email='code@axilent.com',
     url='https://github.com/Axilent/sharrock',

@@ -5,6 +5,7 @@ import json
 import urllib
 import base64
 import requests
+from sys import flags
 
 class ParamException(Exception):
     """
@@ -336,6 +337,11 @@ class ResourceClient(object):
         """
         if not self._descriptor or force:
             response = requests.get('%s/describe/%s/%s/%s.json' % (self._service_url,self._app,self._version,self._resource_slug))
+            
+            if flags.debug:
+                log.debug('Received raw response: %s' % response.text)
+            
+            
             self._descriptor = response.json(strict=False)
 
             if 'get' in self._descriptor:

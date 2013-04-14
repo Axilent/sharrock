@@ -336,6 +336,8 @@ class ResourceClient(object):
         Locally caches the resource descriptor.
         """
         if not self._descriptor or force:
+            print 'Asking for descriptor at','%s/describe/%s/%s/%s.json' % (self._service_url,self._app,self._version,self._resource_slug)
+            
             response = requests.get('%s/describe/%s/%s/%s.json' % (self._service_url,self._app,self._version,self._resource_slug))
             
             print 'Received raw response: %s' % response.text

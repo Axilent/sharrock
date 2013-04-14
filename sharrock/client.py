@@ -338,8 +338,7 @@ class ResourceClient(object):
         if not self._descriptor or force:
             response = requests.get('%s/describe/%s/%s/%s.json' % (self._service_url,self._app,self._version,self._resource_slug))
             
-            if flags.debug:
-                print 'Received raw response: %s' % response.text
+            print 'Received raw response: %s' % response.text
             
             
             self._descriptor = response.json(strict=False)

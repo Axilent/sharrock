@@ -5,6 +5,9 @@ import markdown
 from django.template.defaultfilters import slugify
 from urlparse import parse_qs
 from django.http import QueryDict
+import logging
+
+log = logging.getLogger('sharrock')
 
 class MalformedDescriptor(Exception):
     """
@@ -169,6 +172,7 @@ class JSONSerializer(Serializer):
             return python_object
     
     def deserialize(self,serialized_object):
+        log.debug('JSON Serializer loading serialized objects:%s' % serialized_object)
         if serialized_object:
             return json.loads(serialized_object)
         else:

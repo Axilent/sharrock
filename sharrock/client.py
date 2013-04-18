@@ -295,7 +295,10 @@ class ResourceOperation(object):
             raise ValueError('Either data or params can be submitted, but not both.')
         
         if local_params_check:
-            self.check_params(params)
+            if data:
+                self.check_params(data)
+            else:
+                self.check_params(params)
         
         response = None
         

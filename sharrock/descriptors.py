@@ -104,7 +104,7 @@ class ListParam(Param):
         self.item_param = item_param
     
     def process(self,raw):
-        return [self.item_param.get(None,raw_item) for raw_item in raw]
+        return [self.item_param.process(raw_item) for raw_item in raw]
     
     @property
     def type(self):

@@ -119,6 +119,7 @@ class DictParam(Param):
         self.param_dict = params.copy() # always copy mutable arguments
     
     def process(self,raw):
+        log.debug('DictParam processing raw value: %s' % raw)
         if not self.param_dict:
             # if no params have been defined, treat as a wildcard dictionary - any key/value pairs are acceptable
             return raw.copy()

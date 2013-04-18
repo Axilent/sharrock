@@ -297,8 +297,6 @@ class ResourceOperation(object):
         if local_params_check:
             self.check_params(params)
         
-        post_data = json.dumps(data) if data else params
-        
         response = None
         
         if self.http_method == 'GET':
@@ -306,9 +304,15 @@ class ResourceOperation(object):
         elif self.http_method == 'DELETE':
             response = requests.delete(self._url(),params=params,auth=(self.user,self.password))
         elif self.http_method == 'POST':
-            response = requests.post(self._url(),data=post_data,auth=(self.user,self.password))
+            if data:
+                response = requests.post(self._url(),data=json.dumps(data),auth=(self.user,self.password))
+            else:
+                response = requests.post(self._url(),params=params,auth=(self.user,self.password))
         else:
-            response = requests.put(self._url(),data=post_data,auth=(self.user,self.password))
+            if data:
+                response = requests.put(self._url(),data=json.dumps(data),auth=(self.user,self.password))
+            else:
+                response = requests.put(self._url(),params=params,auth=(self.user,self.password))
         
         return self.process_response(response)
 

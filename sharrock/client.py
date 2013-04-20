@@ -6,6 +6,9 @@ import urllib
 import base64
 import requests
 from sys import flags
+import logging
+
+log = logging.getLogger('sharrock')
 
 class ParamException(Exception):
     """
@@ -138,6 +141,7 @@ class HttpService(object):
             # error
             raise ServiceException(response.status_code,response.text)
         else:
+            log.debug('Processing response text: %s' % response.text)
             return response.json(strict=False)
     
     def do_get(self,params):

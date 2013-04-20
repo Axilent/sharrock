@@ -103,6 +103,24 @@ class ListParam(Param):
         super(ListParam,self).__init__(name,**kwargs)
         self.item_param = item_param
     
+    def get_from_dict(self,raw_dict):
+        """
+        Override of parent method to implement list retrieval from
+        incoming querydict.
+        """
+        raw_value = None
+        if hasattr(raw_dict,'getlist'):
+            raw_value = raw_dict.getlist(self.name,self.default) # get data as list
+        else:
+            raw_value = raw_dict.get(self.name,self.default)
+        
+        if raw_value is None and self.required:
+            raise ParamRequired(self.name)
+        elif raw_value is None:
+            return None
+        else:
+            return self.process(raw_value)
+    
     def process(self,raw):
         return [self.item_param.process(raw_item) for raw_item in raw]
     

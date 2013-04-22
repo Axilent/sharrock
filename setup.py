@@ -11,11 +11,12 @@ setup(
     version='.'.join(map(str,VERSION)),
     description='Python remote procedure call framework with server and client components.  RESTful when you need it to be.',
     packages=['sharrock'],
+    include_package_data=True,
     license='BSD',
     author='Loren Davie',
     author_email='code@axilent.com',
     url='https://github.com/Axilent/sharrock',
-    install_requires=['requests','Django >= 1.4','Markdown==2.0.1'],
+    install_requires=['requests','Django>=1.4','Markdown==2.0.1'],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Web Environment',

@@ -215,7 +215,10 @@ class HttpClient(object):
         self._cache_descriptor(service_name,force=force_descriptor_update)
         service = self._services[service_name]
         if local_param_check:
-            service.check_params(params) # local param check
+            if data:
+                service.check_params(data)
+            else:
+                service.check_params(params) # local param check
         
         if not method:
             if data:

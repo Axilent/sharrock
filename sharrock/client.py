@@ -148,7 +148,7 @@ class HttpService(object):
         """
         Makes a get request.
         """
-        response = requests.get('%s/%s' % (self.service_url,self.descriptor['slug']),
+        response = requests.get('%s/%s.json' % (self.service_url,self.descriptor['slug']),
                                 params=params,
                                 auth=(self.user,self.password))
         
@@ -165,7 +165,7 @@ class HttpService(object):
         
         post_data = json.dumps(data) if data else params
         
-        response = requests.post('%s/%s' % (self.service_url,self.descriptor['slug']),
+        response = requests.post('%s/%s.json' % (self.service_url,self.descriptor['slug']),
                                  data=post_data,
                                  auth=(self.user,self.password))
         

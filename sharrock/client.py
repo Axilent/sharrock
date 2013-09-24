@@ -142,7 +142,12 @@ class HttpService(object):
             raise ServiceException(response.status_code,response.text)
         else:
             log.debug('Processing response text: %s' % response.text)
-            return response.json(strict=False)
+            try:
+                return response.json(strict=False)
+            except ValueError:
+                # this is JSON decode error
+                log.warning('Cannot JSON decode response: %s' % response.text)
+                return [] # return empty list
     
     def do_get(self,params):
         """

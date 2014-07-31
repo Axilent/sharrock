@@ -89,8 +89,10 @@ All parameters can be imported from *sharrock.descriptors*.  There are several t
 *   UnicodeParam
 *   IntegerParam
 *   FloatParam
+*	BooleanParam
 *   ListParam
 *   DictParam
+*	WildcardParam (any data is good)
 
 Parameters must be instantiated with the first argument being the name of the parameter, and then with the following optional keyword arguments:
 

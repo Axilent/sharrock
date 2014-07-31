@@ -62,6 +62,10 @@ class ParamValidator(object):
             self.checker = self.list_check
         elif self.param_type == 'Dictionary':
             self.checker = self.dict_check
+        elif self.param_type == 'Boolean':
+            self.checker = self.boolean_check
+        elif self.param_type == 'Wildcard':
+            self.checker = self.wildcard_check
     
     def unicode_check(self,value):
         unicode(value)
@@ -81,6 +85,13 @@ class ParamValidator(object):
     def dict_check(self,value):
         if not hasattr(value,'keys'):
             raise ValueError
+    
+    def boolean_check(self,value):
+        if not value is None:
+            bool(value)
+    
+    def wildcard_check(self,value):
+        # no-op
     
     def check(self,params):
         """

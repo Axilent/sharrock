@@ -95,6 +95,28 @@ class FloatParam(Param):
     def type(self):
         return 'Float'
 
+class BooleanParam(Param):
+    """
+    A param with a boolean value: True or False
+    """
+    def process(self,raw):
+        return bool(raw)
+    
+    @property
+    def type(self):
+        return 'Boolean'
+
+class WildcardParam(Param):
+    """
+    A param that validates all data.
+    """
+    def process(self,raw):
+        return raw
+    
+    @property
+    def type(self):
+        return 'Wildcard'
+
 class ListParam(Param):
     """
     A param with a list of values.

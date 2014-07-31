@@ -534,13 +534,13 @@ class FailedToLocate(Exception):
     Marker exception to trigger 404 response from service layer.
     """
 
-def not_found_as_404(view):
+def not_found_as_404(execute):
     """
     This decorator will convert any ObjectDoesNotExist exception into a 404 http response.
     """
-    def wrapper(request,*args,**kwargs):
+    def wrapper(parent,request,data,params):
         try:
-            return view(request,*args,**wkwargs)
+            parent.execute(request,data,params)
         except ObjectDoesNotExist as odne:
             raise FailedToLocate(odne)
     

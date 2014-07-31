@@ -540,7 +540,7 @@ def not_found_as_404(execute):
     """
     def wrapper(parent,request,data,params):
         try:
-            execute(parent,request,data,params)
+            return execute(parent,request,data,params)
         except ObjectDoesNotExist as odne:
             raise FailedToLocate(odne)
     

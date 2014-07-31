@@ -2,7 +2,7 @@
 View functions for Sharrock.
 """
 from sharrock import registry
-from sharrock.descriptors import ParamRequired, MethodNotAllowed, AccessDenied, Conflict
+from sharrock.descriptors import ParamRequired, MethodNotAllowed, AccessDenied, Conflict, FailedToLocate
 from django.shortcuts import render_to_response
 from django.http import Http404, HttpResponse
 from django.conf import settings
@@ -76,6 +76,8 @@ def execute_service(request,app,version,service_name,extension='json'):
         return HttpResponse(unicode(pr),status=400) # missing parameter
     except Conflict as con:
         return HttpResponse(unicode(con),status=409) # something user-resolvable is wrong with the function
+    except FailedToLocate as ftl:
+        return HttpResponse(unicode(ftl),status=404) # descriptor has been marked with @not_found_as_404 and has raise ObjectDoesNotExist
     except BaseException as e:
         log.exception('Exception while accessing function %s.' % service_name)
         raise e
@@ -104,6 +106,8 @@ def execute_resource(request,app,version,resource_name,extension='json',model_id
         return HttpResponse(unicode(mna),status=405) # the employed http method is not supported
     except Conflict as con:
         return HttpResponse(unicode(con),status=409) # something user-resolvable is wrong with the resource
+    except FailedToLocate as ftl:
+        return HttpResponse(unicode(ftl),status=404) # descriptor has been marked with @not_found_as_404 and has raise ObjectDoesNotExist
     except BaseException as e:
         log.exception('Exception while accessing resource %s.' % resource_name)
         raise e

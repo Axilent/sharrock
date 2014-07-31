@@ -5,6 +5,7 @@ import markdown
 from django.template.defaultfilters import slugify
 from urlparse import parse_qs
 from django.http import QueryDict
+from django.core.exceptions import ObjectDoesNotExist
 import logging
 
 log = logging.getLogger('sharrock')
@@ -524,3 +525,23 @@ class Conflict(Exception):
     An exception indicating there is a user-resolvable problem with the function or resource being addressed.
     Should contain enough information so that the user can resolve the problem.
     """
+
+# ========================
+# = Not Found Descriptor =
+# ========================
+class FailedToLocate(Exception):
+    """
+    Marker exception to trigger 404 response from service layer.
+    """
+
+def not_found_as_404(view):
+    """
+    This decorator will convert any ObjectDoesNotExist exception into a 404 http response.
+    """
+    def wrapper(request,*args,**kwargs):
+        try:
+            return view(request,*args,**wkwargs)
+        except ObjectDoesNotExist as odne:
+            raise FailedToLocate(odne)
+    
+    return wrapper

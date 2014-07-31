@@ -316,4 +316,16 @@ Sharrock provides a special client for model resources,  sharrock.client.ModelRe
 
 Note: Added Table of Contents capabilities.
 
+Converting ObjectDoesNotExist exceptions to HTTP 404 Responses
+==============================================================
+
+For APIs in which a specific object is addressed by some lookup parameter, the entire operation should fail if the object can't be located.  Sharrock provides a shorthand to convert ObjectDoesNotExist exceptions into a 404 response to be sent back to the API client, by means of the `not_found_as_404` decorator.
+
+To use, simply decorate the descriptor's `execute` method:
+
+	class MyDescriptor:
+		...
+		@not_found_as_404
+		def execute(self,request,data,params):
+			# any code that raises ObjectDoesNotExist will trigger a 404 response
 

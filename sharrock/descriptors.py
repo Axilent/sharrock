@@ -373,13 +373,19 @@ class Descriptor(object):
         """
         if self.data_parsing or not self.params: # data parsing descriptors ignore keyword args
             return {} # no params means no keyword args
+        
+        request_data = None
+        if hasattr(request,'body'):
+            request_data = request.body
+        else:
+            request_data = request.raw_post_data
 
         if request.GET:
             return request.GET.copy()
         elif request.POST:
             return request.POST.copy()
-        elif parse_qs(request.raw_post_data):
-            return QueryDict(request.raw_post_data)
+        elif parse_qs(request_data):
+            return QueryDict(request_data)
         else:
             return {}
     
@@ -391,7 +397,11 @@ class Descriptor(object):
         self.security.check(request)
 
         # 2. Deserialize incoming data
-        data = self.deserialize(request.raw_post_data,format)
+        data = None
+        if hasattr(request,'body'):
+            data = self.deserialize(request.body,format)
+        else:
+            data = self.deserialize(request.raw_post_data,format)
         data = data or {} # set to empty dictionary if serializer returned nothing
 
         # 3. Get kwargs

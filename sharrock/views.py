@@ -94,7 +94,7 @@ def execute_resource(request,app,version,resource_name,extension='json',model_id
         except KeyError:
             raise Http404
         status_code, response_headers, serialized_result = resource.http_service(request,format=extension)
-        response = HttpResponse(content=serialized_result,mimetype=response_headers['Content-type'],status=status_code)
+        response = HttpResponse(content=serialized_result,content_type=response_headers['Content-type'],status=status_code)
         for header_name, header_value  in response_headers.items():
             response[header_name] = header_value
         return response

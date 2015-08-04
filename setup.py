@@ -16,7 +16,7 @@ setup(
     author='Loren Davie',
     author_email='code@axilent.com',
     url='https://github.com/Axilent/sharrock',
-    install_requires=['requests','Django>=1.8','Markdown==2.0.1'],
+    install_requires=['requests','Django>=1.5','Markdown==2.0.1'],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Web Environment',

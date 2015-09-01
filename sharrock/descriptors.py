@@ -377,7 +377,7 @@ class Descriptor(object):
         request_data = None
         if hasattr(request,'body'):
             request_data = request.body
-        else:
+        elif hasattr(request,'raw_post_data'):
             request_data = request.raw_post_data
 
         if request.GET:
@@ -400,7 +400,7 @@ class Descriptor(object):
         data = None
         if hasattr(request,'body'):
             data = self.deserialize(request.body,format)
-        else:
+        elif hasattr(request,'raw_post_data'):
             data = self.deserialize(request.raw_post_data,format)
         data = data or {} # set to empty dictionary if serializer returned nothing
 

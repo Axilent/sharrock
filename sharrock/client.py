@@ -91,7 +91,7 @@ class ParamValidator(object):
             bool(value)
     
     def wildcard_check(self,value):
-        # no-op
+        pass
     
     def check(self,params):
         """
